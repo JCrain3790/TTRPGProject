@@ -1,6 +1,6 @@
 <div class="container">
 	<h1 class="title">LoreForge</h1>
-	<p class="welcome-message">
+	<p class="messages">
 		<strong>Welcome to LoreForge</strong> – the ultimate tool for Game Masters ready to craft immersive
 		worlds and unforgettable adventures. Whether you’re a seasoned GM or just beginning, LoreForge gives
 		you the power to build, organize, and store every detail of your campaigns in one place. With our intuitive
@@ -28,7 +28,7 @@
 	font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
-.welcome-message {
+.messages {
 	max-width: 700px;
 	font-size: 1.1rem;
 	line-height: 1.6;
