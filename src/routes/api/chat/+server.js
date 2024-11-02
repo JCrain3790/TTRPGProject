@@ -22,6 +22,8 @@ export async function POST({ request }) {
 
 		const data = await response.json();
 
+		console.log('Assistant Message:', data.choices[0]?.message?.content);
+
 		if (!response.ok) {
 			console.error('OpenAI API error:', data);
 			return json(
@@ -35,4 +37,6 @@ export async function POST({ request }) {
 		console.error('Error connecting to OpenAI:', error);
 		return json({ error: 'Failed to connect to OpenAI' }, { status: 500 });
 	}
+	
+
 }

@@ -23,11 +23,60 @@
 				--blue: #7b9e87;
 				--background: var(--eerie-black);
 			}
-			h1 {
+			*,
+			*::before,
+			*::after {
+				box-sizing: border-box;
+			}
+			.navbar {
+				background-color: var(--flame);
+				height: 75px;
+				width: 100%;
+				margin: 0 auto;
+				border-radius: 10px;
 				display: flex;
-				flex-direction: row;
-				justify-content: center;
-				color: var(--orange);
+				justify-content: space-between;
+				align-items: center;
+				padding: 0 20px;
+				color: white;
+				overflow: hidden;
+			}
+
+			.nav-links {
+				display: flex;
+				gap: 20px; /* Adds spacing between links */
+			}
+
+			.nav-links a {
+				color: white;
+				font-weight: bold;
+				text-decoration: none;
+			}
+
+			.auth {
+				display: flex;
+				align-items: center;
+				gap: 10px;
+			}
+
+			.auth a {
+				color: white;
+				text-decoration: none;
+				margin-right: 10px;
+			}
+
+			button {
+				background-color: var(--orange);
+				color: white;
+				border: none;
+				border-radius: 5px;
+				padding: 8px 12px;
+				cursor: pointer;
+				font-weight: bold;
+			}
+
+			button:hover {
+				background-color: #ff7f50;
 			}
 			*::-webkit-scrollbar-track {
 				-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);

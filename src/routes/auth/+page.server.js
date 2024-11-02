@@ -26,7 +26,7 @@ export const actions = {
       console.error(error)
       redirect(303, '/auth/error')
     } else {
-      redirect(303, '/authenticated/home')
+      redirect(303, '/user/home')
     }
   },
 }

@@ -1,15 +1,10 @@
 <script>
 	let input = '';
-	/**
-	 * @type {any[]}
-	 */
 	let chatLog = [];
 	let loading = false;
 	let resp = 0;
-	/**
-	 * @type {number | undefined}
-	 */
 	let intervalHolder;
+
 	async function sendMessage() {
 		if (!input) return;
 		loading = true;
@@ -27,7 +22,8 @@
 
 			const data = await res.json();
 
-			chatLog = [...chatLog, { role: 'assistant', content: data.choices[0].message.content }];
+			// Add the decoded message to chat log
+			chatLog = [...chatLog, { role: 'assistant', content:  data.choices[0]?.message?.content }];
 		} catch (error) {
 			console.error('Error', error);
 			chatLog = [
@@ -125,7 +121,11 @@ color: #FF9505"
 						<span class={message.role === 'user' ? 'user' : 'assistant'}>
 							{message.role === 'user' ? 'You' : 'GPT'}:
 						</span>
-						<p>{message.content}</p>
+						{#if message.role === 'assistant'}
+							<p>{@html message.content}</p>
+						{:else}
+							<p>{message.content}</p>
+						{/if}
 					</li>
 				{/if}
 			{/each}
