@@ -22,7 +22,6 @@
 
 			const data = await res.json();
 
-			// Add the decoded message to chat log
 			chatLog = [...chatLog, { role: 'assistant', content:  data.choices[0]?.message?.content }];
 		} catch (error) {
 			console.error('Error', error);
@@ -42,7 +41,7 @@
 	var speed = 2;
 	let sentanceBreak = 10;
 	/**
-	 * @type {HTMLParagraphElement}
+	 * @type {HTMLPreElement}
 	 */
 	let typing;
 	/**
@@ -112,7 +111,7 @@ color: #FF9505"
 						{chatLog.toReversed()[0].role === 'user' ? 'You' : 'GPT'}:
 					</span>
 				{/if}
-				<p bind:this={typing}></p>
+				<pre bind:this={typing}></pre>
 			</li>
 
 			{#each chatLog.toReversed() as message, index}
@@ -122,9 +121,9 @@ color: #FF9505"
 							{message.role === 'user' ? 'You' : 'GPT'}:
 						</span>
 						{#if message.role === 'assistant'}
-							<p>{@html message.content}</p>
+							{@html message.content}
 						{:else}
-							<p>{message.content}</p>
+							<pre>{message.content}</pre>
 						{/if}
 					</li>
 				{/if}
@@ -145,6 +144,10 @@ color: #FF9505"
 </div>
 
 <style>
+	pre{
+		white-space: pre-wrap;
+		word-wrap: break-word;
+	}
 	input {
 		background-color: var(--eerie-black);
 		color: #ffffff;
