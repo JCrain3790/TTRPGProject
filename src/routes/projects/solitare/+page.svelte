@@ -20,8 +20,7 @@
 		cards = cards;
 	}
 
-    shuffle()
-    
+	shuffle();
 </script>
 
 <button on:click={() => drawCard(deck, 1)}>Draw Card</button>

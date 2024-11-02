@@ -82,7 +82,6 @@
 	}
 </script>
 
-
 <div
 	style="display: flex;
 flex-direction: column;
@@ -90,15 +89,15 @@ justify-content: center;
 padding-left:20%;
 padding-right:20%;"
 >
-<h1
-	style="
+	<h1
+		style="
 display: flex;
 flex-direction: row;
 justify-content: center;
 color: #FF9505"
->
-	CAMPAIGN ASSISTANT
-</h1>
+	>
+		CAMPAIGN ASSISTANT
+	</h1>
 	<div
 		style="height: 60vh;
     display:flex;

@@ -45,9 +45,11 @@
 			for (let i = row - 1; i <= row + 1; i++) {
 				for (let j = col - 1; j <= col + 1; j++) {
 					if (i === row && j === col) continue;
-						
-					if (i >= 0 && i < numRow && j >= 0 && j < numCol) { 
-						setTimeout(() => {revealAdjacentCells(board, i, j)}, 5)
+
+					if (i >= 0 && i < numRow && j >= 0 && j < numCol) {
+						setTimeout(() => {
+							revealAdjacentCells(board, i, j);
+						}, 5);
 					}
 				}
 			}
@@ -131,7 +133,7 @@
 				const row = Math.floor(Math.random() * numRow);
 				const col = Math.floor(Math.random() * numCol);
 
-                const cell = b[row][col];
+				const cell = b[row][col];
 
 				if (!cell.isMine) {
 					cell.isMine = true;
@@ -143,10 +145,9 @@
 		});
 	}
 
-    function restarGame() {
-        resetBoard();
-    }
-
+	function restarGame() {
+		resetBoard();
+	}
 </script>
 
 {#each $board as row, rowIndex}

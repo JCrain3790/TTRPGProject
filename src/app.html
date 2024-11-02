@@ -8,15 +8,19 @@
 	</head>
 	<body
 		data-sveltekit-preload-data="hover"
-		style="background-color: var(--eerie-black); font-family: Arial, Helvetica, sans-serif; color: white"
+		style="
+			background-color: var(--eerie-black);
+			font-family: Arial, Helvetica, sans-serif;
+			color: white;
+		"
 	>
 		<style>
-			:root{
+			:root {
 				--eerie-black: #1f1e1e;
-				--flame: #EC4E20;
-				--orange: #FF9505;
-				--sage: #B6BE9C;
-				--blue: #7B9E87;
+				--flame: #ec4e20;
+				--orange: #ff9505;
+				--sage: #b6be9c;
+				--blue: #7b9e87;
 				--background: var(--eerie-black);
 			}
 			h1 {
@@ -41,8 +45,6 @@
 				-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
 				background-color: #555;
 			}
-
-			
 		</style>
 		<div style="display: contents">%sveltekit.body%</div>
 	</body>
