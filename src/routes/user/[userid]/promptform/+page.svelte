@@ -7,6 +7,7 @@
 	export let data;
 	let themes = writable([]);
 	let rulesets = writable([]);
+	let style = writable([]);
 
 	onMount(() => {
 		setInterval(() => {
@@ -46,12 +47,32 @@
 		'fairy tale',
 		'mythology',
 		'detective',
-		'sports'
+		'sports',
 	]}
 	selections={themes}
 ></Selector>
 <Selector
 	category="Ruleset"
-	cannedSuggestions={['DnD5e', 'DnD3.5', 'Savage Worlds']}
+	cannedSuggestions={[
+		'DnD5e', 
+		'DnD3.5', 
+		'Savage Worlds', 
+		'Pathfinder', 
+		'Call of Cthulhu',
+		'World of Darkness',
+		'Shadowrun',
+		'Cyberpunk Red',
+		'Warhammer Fantasy',
+		'Numenera',
+	]}
+	selections={rulesets}
+></Selector>
+<Selector
+	category="Focus"
+	cannedSuggestions={[
+		'Combat',
+		'Roleplay',
+		'Investigation',
+	]}
 	selections={rulesets}
 ></Selector>
