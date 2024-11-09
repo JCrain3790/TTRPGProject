@@ -3,7 +3,7 @@ import { redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 const PUBLIC_SUPABASE_URL = import.meta.env.VITE_PUBLIC_SUPABASE_URL;
 const PUBLIC_SUPABASE_ANON_KEY = import.meta.env.VITE_PUBLIC_SUPABASE_ANON_KEY;
-
+/** @type {import('@sveltejs/kit').Handle} */
 const supabase = async ({ event, resolve }) => {
 	/**
 	 * Creates a Supabase client specific to this server request.
@@ -61,7 +61,7 @@ const supabase = async ({ event, resolve }) => {
 		}
 	});
 };
-
+/** @type {import('@sveltejs/kit').Handle} */
 const authGuard = async ({ event, resolve }) => {
 	const { session, user } = await event.locals.safeGetSession();
 	event.locals.session = session;
@@ -76,11 +76,16 @@ const authGuard = async ({ event, resolve }) => {
 		// }
 	}
 
-	if (event.locals.session) {
+	if (event.locals.session && event.locals.user) {
 		if (event.url.pathname === '/auth') {
 			redirect(303, '/user/home');
 		}
+		if (!event.url.pathname.startsWith(`/user/${event.locals.session.user.id}/reconfirm`) && !event.locals.user.confirmed_at) {
+			redirect(303, `/user/${event.locals.session.user.id}/reconfirm`)
+		}
 	}
+
+
 
 	return resolve(event);
 };
