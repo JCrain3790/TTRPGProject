@@ -77,7 +77,7 @@ const authGuard = async ({ event, resolve }) => {
 	}
 
 	if (event.locals.session && event.locals.user) {
-		if (event.url.pathname === '/auth') {
+		if (event.url.pathname.startsWith('/auth')) {
 			redirect(303, '/user/home');
 		}
 		if (!event.url.pathname.startsWith(`/user/${event.locals.session.user.id}/reconfirm`) && !event.locals.user.confirmed_at) {

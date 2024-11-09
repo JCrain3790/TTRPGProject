@@ -15,6 +15,7 @@
 		fetch('/api/campaigns').then(async (response) => {
 			campaigns = await response.json();
 		});
+		window.addEventListener('click', closeContextMenu);
 	});
 
 	let input = '';
@@ -67,7 +68,7 @@
 	}
 
 	// Close context menu on clicking outside
-	window.addEventListener('click', closeContextMenu);
+	
 
 	async function sendMessage() {
 		if (!input) return;

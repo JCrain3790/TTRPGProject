@@ -10,9 +10,9 @@ export const actions = {
     const { error } = await supabase.auth.signUp({ email, password })
     if (error) {
       console.error(error)
-      redirect(303, '/auth/error')
+      redirect(303, `/auth/error?status=${error.status}&code=${error.code}`)
     } else {
-      redirect(303, '/')
+      redirect(303, `/auth/error?message=${encodeURIComponent('Please Confirm Your Email')}`)
     }
   },
   // @ts-ignore
@@ -24,7 +24,7 @@ export const actions = {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) {
       console.error(error)
-      redirect(303, '/auth/error')
+      redirect(303, `/auth/error?status=${error.status}&code=${error.code}`)
     } else {
       redirect(303, '/user/home')
     }

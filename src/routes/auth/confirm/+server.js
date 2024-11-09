@@ -12,17 +12,25 @@ export async function GET({ url, locals: { supabase } }) {
 	 */
 	const redirectTo = new URL(url);
 	redirectTo.pathname = next;
+	console.log('name',next);
 	redirectTo.searchParams.delete('token_hash');
 	redirectTo.searchParams.delete('type');
     console.log(type, token_hash)
 	if (token_hash && type) {
-		const { error } = await supabase.auth.verifyOtp({ type, token_hash });
+		const { error, data } = await supabase.auth.verifyOtp({ type, token_hash });
 		if (!error) {
 			redirectTo.searchParams.delete('next');
+			console.log('confirmed and redirected');
+			console.log('data', data);
+			if (data && data.user && data.session) {initializeUser(data.user, data.session)
 			redirect(303, redirectTo);
 		}
 	}
 
-	redirectTo.pathname = '/auth/error';
+	
 	redirect(303, redirectTo);
+}
+
+async function initializeUser(user, session) {
+	//New User Setup goes here
 }
