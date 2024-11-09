@@ -13,7 +13,7 @@
 			<input name="password" type="password" required />
 		</label>
 		<button type="submit">Login</button>
-		<button type="button" formaction="?/signup">Sign up</button>
+		<button type="submit" formaction="?/signup">Sign up</button>
 	</form>
 </div>
 <style>

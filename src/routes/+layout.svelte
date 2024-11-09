@@ -49,6 +49,7 @@
 	</div>
 	<div class="auth">
 		{#if session}
+			<a href="/user/{session.user.id}/campaign">Campaigns</a>
             <a href="/user/{session.user.id}/campaigncreator">AI Assistant</a>
 			<a href="">{session.user.email}</a>
 			<button on:click={logout} type="submit">Logout</button>

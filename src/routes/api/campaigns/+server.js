@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url, locals }) {
-	let name = url.searchParams.get('name') ?? '*';
+	let name = url.searchParams.get('name') ?? '';
 	console.log(name);
 	const response = await locals.supabase.from('Campaigns').select('*').ilike('name', `%${name}%`);
 	const data = response.data;
