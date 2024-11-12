@@ -17,7 +17,6 @@
 			}
 			if (session) {
 				sea = session.expires_at;
-				console.log(session);
 			}
 			if (nsea !== sea) {
 				invalidate('supabase:auth');

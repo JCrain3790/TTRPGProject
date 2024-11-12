@@ -1,9 +1,44 @@
 <script>
+	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+
+	/** @type {import('./$types').PageData} */
+	export let data;
+	console.log(data);
 	let input = '';
 	let chatLog = [];
 	let loading = false;
 	let resp = 0;
 	let intervalHolder;
+
+	onMount(async () => {
+		if (data.startingprompt) {
+			try {
+				goto('aiassistant');
+				loading = true;
+				const res = await fetch('/api/start-campaign', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(data.startingprompt)
+				});
+
+				const resdata = await res.json();
+				console.log(resdata.choices[0]);
+				chatLog = [{ role: 'assistant', content: resdata.choices[0]?.message?.content }];
+				intervalHolder = typeEffect(chatLog[chatLog.length - 1].content);
+				input = '';
+				loading = false;
+				resp = resp + 1;
+				
+			} catch (error) {
+				console.error('Error', error);
+				chatLog = [
+					...chatLog,
+					{ role: 'assistant', content: 'Something went wrong. Please try again.' }
+				];
+			}
+		}
+	});
 
 	async function sendMessage() {
 		if (!input) return;
@@ -22,7 +57,7 @@
 
 			const data = await res.json();
 
-			chatLog = [...chatLog, { role: 'assistant', content:  data.choices[0]?.message?.content }];
+			chatLog = [...chatLog, { role: 'assistant', content: data.choices[0]?.message?.content }];
 		} catch (error) {
 			console.error('Error', error);
 			chatLog = [
@@ -144,7 +179,7 @@ color: #FF9505"
 </div>
 
 <style>
-	pre{
+	pre {
 		white-space: pre-wrap;
 		word-wrap: break-word;
 	}
