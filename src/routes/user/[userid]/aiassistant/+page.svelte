@@ -143,7 +143,7 @@ color: #FF9505"
 			<li>
 				{#if chatLog.length > 0 && chatLog.toReversed()[0].role != 'user'}
 					<span class={chatLog.toReversed()[0].role === 'user' ? 'user' : 'assistant'}>
-						{chatLog.toReversed()[0].role === 'user' ? 'You' : 'GPT'}:
+						{chatLog.toReversed()[0].role === 'user' ? 'You' : 'Assistant'}:
 					</span>
 				{/if}
 				<pre bind:this={typing}></pre>
@@ -153,7 +153,7 @@ color: #FF9505"
 				{#if !(index == 0 && message.role != 'user')}
 					<li>
 						<span class={message.role === 'user' ? 'user' : 'assistant'}>
-							{message.role === 'user' ? 'You' : 'GPT'}:
+							{message.role === 'user' ? 'You' : 'Assistant'}:
 						</span>
 						{#if message.role === 'assistant'}
 							{@html message.content}
