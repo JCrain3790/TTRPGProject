@@ -35,7 +35,13 @@
 				input = '';
 				loading = false;
 				resp = resp + 1;
-				
+				fetch('/api/campaigns', {
+					method: 'POST',
+					body: JSON.stringify({
+						name: campaignName,
+						description: resdata.choices[0]?.message?.content
+					})
+				})
 			} catch (error) {
 				console.error('Error', error);
 				chatLog = [
