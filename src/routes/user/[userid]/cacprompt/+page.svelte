@@ -12,10 +12,12 @@
 	let scale = writable([]);
 	let inspiration = writable([]);
 	let hook = writable([]);
+	let name = writable([]);
 
 	// Gathers data and sends to backend
 	async function startCampaign() {
 		const campaignData = {
+			name: $name,
 			theme: $themes,
 			ruleset: $rulesets,
 			focus: $focus,
@@ -69,6 +71,10 @@
 	<h1>Create a Campaign</h1>
 
 	<fieldset>
+		<div style="width: 100%;">
+		<h2>Name</h2>
+		<input type="text" bind:value={$name}>
+		</div>
 		<Selector on:focus={() => {clearOthers('Themes')}}
 			bind:this={themesSelector}
 			header="Themes"
@@ -163,5 +169,15 @@
 	}
 	fieldset * {
 		flex-grow: 1;
+	}
+	input {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: 1rem;
+		width: 100%;
+		max-width: 500px;
 	}
 </style>

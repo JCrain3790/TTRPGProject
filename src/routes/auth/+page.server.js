@@ -12,7 +12,7 @@ export const actions = {
       console.error(error)
       redirect(303, `/auth/error?status=${error.status}&code=${error.code}`)
     } else {
-      redirect(303, `/auth/error?message=${encodeURIComponent('Please Confirm Your Email')}`)
+      redirect(303, `/auth/error?message=${encodeURIComponent(`Please Confirm Your Email\n(Click the invite link we sent to your inbox!)`)}`)
     }
   },
   // @ts-ignore

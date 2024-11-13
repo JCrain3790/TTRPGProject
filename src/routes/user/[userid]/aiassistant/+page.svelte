@@ -10,11 +10,17 @@
 	let loading = false;
 	let resp = 0;
 	let intervalHolder;
+	let campaignName = 'Campaign Assistant';
 
 	onMount(async () => {
 		if (data.startingprompt) {
+			console.log(data.startingprompt);
+			let jsonData = JSON.parse(data.startingprompt);
+			if (jsonData.name){
+				campaignName = jsonData.name;
+			}
 			try {
-				goto('aiassistant');
+				// goto('aiassistant');
 				loading = true;
 				const res = await fetch('/api/start-campaign', {
 					method: 'POST',
@@ -126,7 +132,7 @@ flex-direction: row;
 justify-content: center;
 color: #FF9505"
 	>
-		CAMPAIGN ASSISTANT
+		{campaignName}
 	</h1>
 	<div
 		style="height: 60vh;

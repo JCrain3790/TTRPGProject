@@ -6,12 +6,14 @@ export async function POST({ request }) {
 	const campaignData = JSON.parse(await request.json());
 	const prompt = `
         Create a TTRPG campaign with the following details:
+		- Name: ${campaignData.name}
         - Themes: ${campaignData.theme.join(', ')}
-        - Ruleset: ${campaignData.ruleset}
-		- Focus: ${campaignData.focus}
-		- Scale: ${campaignData.scale}
-		- Inspiration: ${campaignData.inspiration}
-		- Hook: ${campaignData.hook}
+        - Ruleset: ${campaignData.ruleset.join(', ')}
+		- Focus: ${campaignData.focus.join(', ')}
+		- Scale: ${campaignData.scale.join(', ')}
+		- Inspiration: ${campaignData.inspiration.join(', ')}
+		- Hook: ${campaignData.hook.join(', ')}
+		
 	`;
 	const response = await fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'POST',

@@ -2,9 +2,14 @@ import { json } from '@sveltejs/kit';
 import fetch from 'node-fetch';
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 export async function POST({ request }) {
-	const { messages } = await request.json();
+	let reqdata = await request.json();
+	console.log(reqdata.messages)
 
 	try {
+		let lastOriginalMessage = reqdata.messages.shift();
+		let preamble = 'Only answer questions related to the campaign. If the message does not seem to relate to the rest of the conversation tell me to stay on topic. Question:';
+		let modMessage = preamble + lastOriginalMessage.content;
+		reqdata.messages.unshift({role: 'user', content: modMessage});
 		const req = {
 			method: 'POST',
 			headers: {
@@ -13,7 +18,7 @@ export async function POST({ request }) {
 			},
 			body: JSON.stringify({
 				model: 'gpt-3.5-turbo',
-				messages
+				messages: reqdata.messages
 			})
 		};
 		console.log(req);

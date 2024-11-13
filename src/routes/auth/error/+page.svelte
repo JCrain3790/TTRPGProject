@@ -18,9 +18,11 @@
 		console.log(params);
 	});
 </script>
+<div style="display: flex; justify-content:center; align-items:center; min-height:400px;">
 {#if message}
-	<p>{message}</p>
+	<pre style="text-align:center;">{message}</pre>
 	{:else}
 	<p>Login error Status: {status} Code: {code}</p>
 {/if}
+</div>
 
