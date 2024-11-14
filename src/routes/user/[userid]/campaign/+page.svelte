@@ -17,10 +17,6 @@
 		});
 	});
 
-		// Toggle description visibility for each campaign
-	async function toggleDescription(campaign) {
-		campaign.showDescription = !campaign.showDescription;
-	}
 </script>
 
 <div class="content">
@@ -31,9 +27,8 @@
 		{#if campaigns.length > 0}
 			{#each campaigns as campaign}
 				<div class="campaign-item">
-					<button type="button" class="campaign-item" on:click={() => toggleDescription(campaign)}></button>
 					<h1>{campaign.name}</h1>
-					<button class="button enter-button" on:click={() => (window.location.href = assistantUrl)}>
+					<button class="button enter-button" on:click={() => (window.location.href = `campaign/${campaign.id}/campaignhub`)}>
 						Enter Campaign Hub
 					</button>
 				</div>
