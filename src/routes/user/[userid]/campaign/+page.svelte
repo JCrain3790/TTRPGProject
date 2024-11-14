@@ -1,8 +1,8 @@
 <script>
 	import { onMount } from 'svelte';
-	import { writable } from 'svelte/store';
+	import { page } from '$app/stores'
 
-  //NEEDS RENAME, SAVE, VIEW FILES, ADD FILE TO FOLDER FUNCTIONALITY
+	
 
 	/** @type {import('./$types').PageData} */
 	export let data;
@@ -15,149 +15,42 @@
 		fetch('/api/campaigns').then(async (response) => {
 			campaigns = await response.json();
 		});
-		window.addEventListener('click', closeContextMenu);
 	});
 
-	let input = '';
-	let chatLog = [];
-	let loading = false;
-
-	let fileSystem = writable([
-		{ type: 'folder', name: 'Campaign Ideas', children: [] },
-		{ type: 'file', name: 'World Building' },
-		{ type: 'file', name: 'Characters' },
-		{ type: 'folder', name: 'Lore', children: [] }
-	]);
-
-	// Variables for context menu
-	let showContextMenu = false;
-	let contextMenuPosition = { x: 0, y: 0 };
-	let selectedItem = null;
-
-	// Functions to manage files and folders
-	function addFolder(name) {
-		fileSystem.update((files) => [...files, { type: 'folder', name, children: [] }]);
-	}
-
-	function addFile(name) {
-		fileSystem.update((files) => [...files, { type: 'file', name }]);
-	}
-
-	function deleteItem(item) {
-		fileSystem.update((files) => files.filter((file) => file !== item));
-		closeContextMenu();
-	}
-
-	function duplicateItem(item) {
-		fileSystem.update((files) => [...files, { ...item, name: item.name + ' Copy' }]);
-		closeContextMenu();
-	}
-
-	// Function to handle right-click and show context menu
-	function handleRightClick(event, item) {
-		event.preventDefault();
-		selectedItem = item;
-		contextMenuPosition = { x: event.clientX, y: event.clientY };
-		showContextMenu = true;
-	}
-
-	// Close context menu
-	function closeContextMenu() {
-		showContextMenu = false;
-		selectedItem = null;
-	}
-
-	// Close context menu on clicking outside
-	
-
-	async function sendMessage() {
-		if (!input) return;
-		loading = true;
-		chatLog = [...chatLog, { role: 'user', content: input }];
-
-		try {
-			const res = await fetch('/api/chat', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ messages: chatLog })
-			});
-
-			const data = await res.json();
-			let assistantMessage = data.choices[0]?.message?.content || 'No response from GPT.';
-
-			chatLog = [...chatLog, { role: 'assistant', content: assistantMessage }];
-		} catch (error) {
-			console.error('Error:', error);
-			chatLog = [
-				...chatLog,
-				{ role: 'assistant', content: 'Something went wrong. Please try again.' }
-			];
-		}
-		input = '';
-		loading = false;
+		// Toggle description visibility for each campaign
+	async function toggleDescription(campaign) {
+		campaign.showDescription = !campaign.showDescription;
 	}
 </script>
 
-{#each campaigns as campaign}
-	<pre>{JSON.stringify(campaign)}</pre>
-{/each}
+<div class="content">
+	<h1>Your Campaigns</h1>
+	<!-- Campaign list -->
 
-<div class="container">
-	<div class="sidebar">
-		<h2>File System</h2>
-		<div class="file-list">
-			{#each $fileSystem as item}
-				<button class={item.type} on:contextmenu={(e) => handleRightClick(e, item)}>
-					<span>{item.name}</span>
-				</button>
+	<div class="campaign-list">
+		{#if campaigns.length > 0}
+			{#each campaigns as campaign}
+				<div class="campaign-item">
+					<button type="button" class="campaign-item" on:click={() => toggleDescription(campaign)}></button>
+					<h1>{campaign.name}</h1>
+					<button class="button enter-button" on:click={() => (window.location.href = assistantUrl)}>
+						Enter Campaign Hub
+					</button>
+				</div>
 			{/each}
-		</div>
-		<div class="file-actions">
-			<button on:click={() => addFolder('New Folder')}>Add Folder</button>
-			<button on:click={() => addFile('New File')}>Add File</button>
-		</div>
+		{:else}
+			<p>No campaigns found. Start a new one below!</p>
+		{/if}
 	</div>
-
-	<div class="chat-area">
-		<h1>AI Assistant</h1>
-		<div class="chat-box">
-			<ul>
-				{#each chatLog as message, index}
-					<li class={message.role === 'user' ? 'user' : 'assistant'}>
-						<strong>{message.role === 'user' ? 'You' : 'GPT'}:</strong>
-						<p>{@html message.content}</p>
-					</li>
-				{/each}
-			</ul>
-		</div>
-
-		<div class="input-area">
-			<input
-				type="text"
-				bind:value={input}
-				placeholder="Type your message..."
-				on:keydown={(e) => e.key === 'Enter' && sendMessage()}
-				disabled={loading}
-				autofocus
-			/>
-			<button on:click={sendMessage} disabled={loading}>
-				{loading ? 'Sending...' : 'Send'}
-			</button>
-		</div>
-	</div>
-
-	{#if showContextMenu}
-		<div
-			class="context-menu"
-			style="top: {contextMenuPosition.y}px; left: {contextMenuPosition.x}px"
-		>
-			<ul>
-				<li on:click={() => deleteItem(selectedItem)}>Delete</li>
-				<li on:click={() => duplicateItem(selectedItem)}>Duplicate</li>
-			</ul>
-		</div>
-	{/if}
+	<div class="new-campaign">
+		<button
+			class="button new-campaign-button"
+			on:click={() => (window.location.href = 'cacprompt')}>
+			Start a New Campaign
+		</button>
+	</div>	
 </div>
+
 
 <style>
 	:root {
@@ -168,101 +61,78 @@
 		--blue: #7b9e87;
 		--background: var(--eerie-black);
 	}
-	/* Layout styling */
-	.container {
-		display: flex;
-		height: 100vh;
-	}
 
-	.sidebar {
-		width: 250px;
-		background-color: var(--eerie-black);
-		border-right: 1px solid #ccc;
-		padding: 15px;
-		display: flex;
-		flex-direction: column;
-	}
-
-	.file-list {
-		list-style: none;
-		padding: 0;
+	body {
+		background-color: var(--background);
+		color: var(--sage);
+		font-family: Arial, sans-serif;
 		margin: 0;
-		flex-grow: 1;
+		padding: 0;
 	}
 
-	.file-item,
-	.folder {
-		padding: 8px 5px;
-		cursor: pointer;
-	}
-
-	.file-item:hover,
-	.folder:hover {
-		background-color: #ddd;
-	}
-
-	.chat-area {
-		flex-grow: 1;
+	/* Center the main content container */
+	.content {
 		display: flex;
 		flex-direction: column;
-		padding: 20px;
-		background-color: var(--eerie-black);
+		align-items: center;
+		justify-content: center;
+		max-width: 800px;
+		width: 100%;
+		margin: 0 auto;
+		padding: 2rem;
+		box-sizing: border-box;
 	}
 
-	.chat-box {
-		flex-grow: 1;
-		overflow-y: auto;
-		background-color: var(--eerie-black);
-		padding: 15px;
-		border: 1px solid #ccc;
-		border-radius: 8px;
-		margin-bottom: 15px;
+	h1 {
+		color: var(--orange);
+		margin-bottom: 1.5rem;
 	}
 
-	.input-area {
+	.campaign-list {
+		width: 100%;
+		max-width: 600px;
 		display: flex;
-		gap: 10px;
+		flex-direction: column;
+		gap: 1rem;
 	}
 
-	input[type='text'] {
-		flex: 1;
-		padding: 8px;
-		font-size: 1em;
-		border: 1px solid #ddd;
-		border-radius: 5px;
+	.campaign-item {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		padding: 1rem;
+		background-color: #2d2d2d;
+		border-radius: 8px;
 	}
 
-	button {
-		padding: 10px;
-		background-color: #ff9505;
-		color: #fff;
+	.button {
+		padding: 0.5rem 1rem;
+		margin-bottom: 10px;
 		border: none;
 		border-radius: 5px;
 		cursor: pointer;
-		font-size: 1em;
+		font-size: 1rem;
+		color: #fff;
+		transition: background-color 0.2s;
 	}
 
-	.context-menu {
-		position: absolute;
-		background-color: var(--eerie-black);
-		border: 1px solid #ccc;
-		border-radius: 5px;
-		box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-		z-index: 1000;
+	.enter-button {
+		background-color: var(--blue);
 	}
 
-	.context-menu ul {
-		list-style: none;
-		padding: 0;
-		margin: 0;
+	.enter-button:hover {
+		background-color: #4d7266;
 	}
 
-	.context-menu li {
-		padding: 10px;
-		cursor: pointer;
+	.new-campaign {
+		margin-top: 2rem;
 	}
 
-	.context-menu li:hover {
-		background-color: #eee;
+	.new-campaign-button {
+		background-color: var(--orange);
+	}
+
+	.new-campaign-button:hover {
+		background-color: #cc7a04;
 	}
 </style>
