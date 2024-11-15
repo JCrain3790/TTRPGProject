@@ -1,12 +1,23 @@
-import { json } from '@sveltejs/kit';
+import { error, json } from '@sveltejs/kit';
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url, locals }) {
-	let name = url.searchParams.get('name') ?? '';
-	console.log(name);
-	const response = await locals.supabase.from('Campaigns').select('*').ilike('name', `%${name}%`);
+	let name = url.searchParams.get('name');
+	let id = url.searchParams.get('id');
+	if (id) {
+		//get specific campaign here
+		const response = await locals.supabase.from('Campaigns').select('*').eq('id', id)
+		const data = response.data;
+		return json(data);
+	}
+	if (name) {
+		//get a list of campaigns that match the name
+		const response = await locals.supabase.from('Campaigns').select('*').ilike('name', `%${name}%`);
+		const data = response.data;
+		return json(data);
+	}
+	const response = await locals.supabase.from('Campaigns').select('*');
 	const data = response.data;
-	console.log(data);
 	return json(data);
 }
 /**
@@ -15,20 +26,33 @@ export async function GET({ url, locals }) {
 // @ts-ignore
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, locals }) {
-	let json = await request.json();
-	console.log(json);
-	const session = await locals.supabase.from('Campaigns').upsert([json]).select();
-	console.log(session);
-	return new Response();
+	let body = await request.json();
+	const resp = await locals.supabase.from('Campaigns').insert(body).select();
+	if (resp.error) {
+		return error(503, resp.error);
+	}
+	return json(resp.data);
+}
+/** @type {import('./$types').RequestHandler} */
+export async function PATCH({ request, locals }) {
+	let body = await request.json();
+	console.log(body);
+	if (!body.id) {
+		return error(400, 'Please include a campaign id.');
+	}
+	const resp = await locals.supabase.from('Campaigns').upsert(body).select();
+	if (resp.error) {
+		console.log(resp);
+		return error(503, resp.error);
+	}
+	return json(resp.data);
 }
 /** @type {import('./$types').RequestHandler} */
 export async function DELETE({ url, locals }) {
 	let id = url.searchParams.get('id');
 	if (id) {
-		console.log(id);
 		const response = await locals.supabase.from('Campaigns').delete().eq('id', parseInt(id));
 		const data = response.data;
-		console.log(data);
 		return json(data);
 	}
 	return new Response();

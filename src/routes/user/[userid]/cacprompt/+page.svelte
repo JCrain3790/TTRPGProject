@@ -13,7 +13,16 @@
 	let inspiration = writable([]);
 	let hook = writable([]);
 	let name = writable([]);
-
+	let header = 'Create a Campaign';
+	let errorMessage = '';
+	let errorState = false;
+	onMount(() => {
+		if (data && data.referrer) {
+			if (data.referrer == 'confirmation') {
+				header = 'Create your First Campaign'
+			} 
+		} 
+	})
 	// Gathers data and sends to backend
 	async function startCampaign() {
 		const campaignData = {
@@ -27,7 +36,19 @@
 		};
 
 		let reqbody = JSON.stringify(campaignData);
-		goto(`aiassistant?startingprompt=${encodeURIComponent(reqbody)}`, )
+		let response = await fetch('/api/campaigns', {
+			method: 'POST',
+			body: JSON.stringify({name: campaignData.name})
+		});
+		if (!response.ok) {
+			errorState = true;
+			errorMessage = response.statusText;
+			return;
+		} 
+		let responseObject = await response.json();
+		console.log(responseObject);
+		let id = responseObject[0].id;
+		goto(`campaign/${id}/campaignhub?startingprompt=${encodeURIComponent(reqbody)}`, )
 	}
 	/**
 	 * @type {Selector}
@@ -68,7 +89,10 @@
 </script>
 
 <div style="display: flex; flex-direction:column; justify-content:center; align-items:center;">
-	<h1>Create a Campaign</h1>
+{#if errorState}
+	<pre>{errorMessage}</pre>
+{:else}
+	<h1>{header}</h1>
 
 	<fieldset>
 		<div style="width: 100%;">
@@ -154,6 +178,7 @@
 
 		<button on:click={() => {startCampaign()}}>Submit Campaign</button>
 	</fieldset>
+	{/if}
 </div>
 
 <style>

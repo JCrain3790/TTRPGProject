@@ -65,7 +65,6 @@
 		padding: 0;
 	}
 
-	/* Center the main content container */
 	.content {
 		display: flex;
 		flex-direction: column;

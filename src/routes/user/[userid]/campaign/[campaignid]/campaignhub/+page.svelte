@@ -4,15 +4,18 @@
 
 	/** @type {import('./$types').PageData} */
 	export let data;
-	console.log(data);
 	let input = '';
 	let chatLog = [];
 	let loading = false;
 	let resp = 0;
 	let intervalHolder;
 	let campaignName = 'Campaign Assistant';
-
+	let campaign = data.campaign;
+	if (campaign && campaign.name) {
+		campaignName = campaign.name;
+	}
 	onMount(async () => {
+
 		if (data.startingprompt) {
 			console.log(data.startingprompt);
 			let jsonData = JSON.parse(data.startingprompt);
@@ -35,13 +38,15 @@
 				input = '';
 				loading = false;
 				resp = resp + 1;
-				fetch('/api/campaigns', {
-					method: 'POST',
+				campaign.description = resdata.choices[0]?.message?.content
+				let response = await fetch('/api/campaigns', {
+					method: 'PATCH',
 					body: JSON.stringify({
-						name: campaignName,
-						description: resdata.choices[0]?.message?.content
+						id: campaign.id,
+						description: campaign.description
 					})
 				})
+				console.log(response)
 			} catch (error) {
 				console.error('Error', error);
 				chatLog = [

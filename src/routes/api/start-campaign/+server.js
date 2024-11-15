@@ -2,7 +2,7 @@ import { json } from '@sveltejs/kit';
 import fetch from 'node-fetch';
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
-export async function POST({ request }) {
+export async function POST({ request, locals }) {
 	const campaignData = JSON.parse(await request.json());
 	const prompt = `
         Create a TTRPG campaign with the following details:
