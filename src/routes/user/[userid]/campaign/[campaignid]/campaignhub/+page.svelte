@@ -15,20 +15,28 @@
 		campaignName = campaign.name;
 	}
 	onMount(async () => {
-
 		if (data.startingprompt) {
-			console.log(data.startingprompt);
 			let jsonData = JSON.parse(data.startingprompt);
-			if (jsonData.name){
+			if (jsonData.name) {
 				campaignName = jsonData.name;
 			}
 			try {
 				// goto('aiassistant');
 				loading = true;
-				const res = await fetch('/api/start-campaign', {
+				const prompt = `
+					Create a TTRPG campaign with the following details:
+					- Name: ${jsonData.name}
+					- Themes: ${jsonData.theme.join(', ')}
+					- Ruleset: ${jsonData.ruleset.join(', ')}
+					- Focus: ${jsonData.focus.join(', ')}
+					- Scale: ${jsonData.scale.join(', ')}
+					- Inspiration: ${jsonData.inspiration.join(', ')}
+					- Hook: ${jsonData.hook.join(', ')}
+					`;
+				const res = await fetch('/api/chat', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify(data.startingprompt)
+					body: JSON.stringify({ messages: [{role: 'user', content: prompt}], campaignID: campaign.id })
 				});
 
 				const resdata = await res.json();
@@ -38,15 +46,15 @@
 				input = '';
 				loading = false;
 				resp = resp + 1;
-				campaign.description = resdata.choices[0]?.message?.content
+				campaign.description = resdata.choices[0]?.message?.content;
 				let response = await fetch('/api/campaigns', {
 					method: 'PATCH',
 					body: JSON.stringify({
 						id: campaign.id,
 						description: campaign.description
 					})
-				})
-				console.log(response)
+				});
+				console.log(response);
 			} catch (error) {
 				console.error('Error', error);
 				chatLog = [
@@ -54,6 +62,8 @@
 					{ role: 'assistant', content: 'Something went wrong. Please try again.' }
 				];
 			}
+		} else {
+			
 		}
 	});
 
@@ -69,7 +79,7 @@
 			const res = await fetch('/api/chat', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ messages: chatLog })
+				body: JSON.stringify({ messages: chatLog, campaignID: campaign.id })
 			});
 
 			const data = await res.json();

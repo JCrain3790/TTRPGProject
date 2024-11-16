@@ -1,15 +1,19 @@
 import { json } from '@sveltejs/kit';
 import fetch from 'node-fetch';
 const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
-export async function POST({ request }) {
+export async function POST({ request, locals }) {
 	let reqdata = await request.json();
-	console.log(reqdata.messages)
+	const campaignID = reqdata.campaignID;
 
 	try {
-		let lastOriginalMessage = reqdata.messages.shift();
+		let lastOriginalMessage = reqdata.messages.pop();
+		saveMessage(lastOriginalMessage, campaignID, locals.supabase);
 		let preamble = 'Only answer questions related to the campaign. If the message does not seem to relate to the rest of the conversation tell me to stay on topic. Question:';
+		if (reqdata.messages.length < 1) {
+			preamble = ''
+		}
 		let modMessage = preamble + lastOriginalMessage.content;
-		reqdata.messages.unshift({role: 'user', content: modMessage});
+		reqdata.messages.push({role: 'user', content: modMessage});
 		const req = {
 			method: 'POST',
 			headers: {
@@ -21,13 +25,14 @@ export async function POST({ request }) {
 				messages: reqdata.messages
 			})
 		};
-		console.log(req);
+
 
 		const response = await fetch('https://api.openai.com/v1/chat/completions', req);
 
 		const data = await response.json();
 
-		console.log('Assistant Message:', data.choices[0]?.message?.content);
+
+		saveMessage(data.choices[0].message, campaignID, locals.supabase);
 
 		if (!response.ok) {
 			console.error('OpenAI API error:', data);
@@ -42,6 +47,28 @@ export async function POST({ request }) {
 		console.error('Error connecting to OpenAI:', error);
 		return json({ error: 'Failed to connect to OpenAI' }, { status: 500 });
 	}
-	
+	/**
+	 * 
+	 * @param {any} message 
+	 * @param {string} campaignID 
+	 * @param {any} supabase 
+	 */
+	async function saveMessage(message, campaignID, supabase) {
+		const respdata = await supabase.from('Chat').insert([{data: message, campaign: campaignID}]).select();
+		if (respdata.error){
+			console.error(respdata.error, 'Message not saved');
+		} 
 
+	}
+
+}
+export async function GET({ url, locals }) {
+	let id = url.searchParams.get('id');
+	if (id) {
+		//get specific campaign here
+		const response = await locals.supabase.from('Chat').select('*');
+		console.log(JSON.stringify(response));
+		const data = response.data;
+		return json(data);
+	}
 }

@@ -6,17 +6,18 @@ export async function GET({ url, locals }) {
 	let id = url.searchParams.get('id');
 	if (id) {
 		//get specific campaign here
-		const response = await locals.supabase.from('Campaigns').select('*').eq('id', id)
+		const response = await locals.supabase.from('Campaigns').select('*').eq('id', id).is('deleted_at', null);
+		console.log(JSON.stringify(response));
 		const data = response.data;
 		return json(data);
 	}
 	if (name) {
 		//get a list of campaigns that match the name
-		const response = await locals.supabase.from('Campaigns').select('*').ilike('name', `%${name}%`);
+		const response = await locals.supabase.from('Campaigns').select('*').ilike('name', `%${name}%`).is('deleted_at', null);
 		const data = response.data;
 		return json(data);
 	}
-	const response = await locals.supabase.from('Campaigns').select('*');
+	const response = await locals.supabase.from('Campaigns').select('*').is('deleted_at', null);
 	const data = response.data;
 	return json(data);
 }
@@ -51,9 +52,9 @@ export async function PATCH({ request, locals }) {
 export async function DELETE({ url, locals }) {
 	let id = url.searchParams.get('id');
 	if (id) {
-		const response = await locals.supabase.from('Campaigns').delete().eq('id', parseInt(id));
+		const response = await locals.supabase.from('Campaigns').update({deleted_at: new Date()}).eq('id', parseInt(id));
 		const data = response.data;
 		return json(data);
 	}
-	return new Response();
+	return error(400, 'Please include a campaign id.');
 }

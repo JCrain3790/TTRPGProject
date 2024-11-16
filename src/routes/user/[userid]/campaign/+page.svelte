@@ -1,8 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores'
-
-	
+	import { page } from '$app/stores';
+	import { get } from 'svelte/store';
 
 	/** @type {import('./$types').PageData} */
 	export let data;
@@ -12,11 +11,29 @@
 	let campaigns = [];
 
 	onMount(() => {
+		getCampaigns();
+	});
+
+	async function getCampaigns() {
 		fetch('/api/campaigns').then(async (response) => {
 			campaigns = await response.json();
 		});
-	});
-
+	}
+	/**
+	 *
+	 * @param {string}id
+	 */
+	async function handleDelete(id) {
+		campaigns = campaigns.filter((campaign) => {
+			return campaign.id !== id;
+		});
+		let response = await fetch(`/api/campaigns?id=${encodeURIComponent(id)}`, {
+			method: 'DELETE'
+		});
+		if (!response.ok) {
+			console.error(JSON.stringify(response));
+		}
+	}
 </script>
 
 <div class="content">
@@ -28,9 +45,20 @@
 			{#each campaigns as campaign}
 				<div class="campaign-item">
 					<h1>{campaign.name}</h1>
-					<button class="button enter-button" on:click={() => (window.location.href = `campaign/${campaign.id}/campaignhub`)}>
-						Enter Campaign Hub
-					</button>
+					<div class="button-layout">
+						<button
+							class="button enter-button"
+							on:click={() => (window.location.href = `campaign/${campaign.id}/campaignhub`)}
+						>
+							Enter Campaign Hub
+						</button>
+						<button
+							class="button delete-button"
+							on:click={() => {
+								handleDelete(campaign.id);
+							}}>Delete Campaign</button
+						>
+					</div>
 				</div>
 			{/each}
 		{:else}
@@ -40,12 +68,12 @@
 	<div class="new-campaign">
 		<button
 			class="button new-campaign-button"
-			on:click={() => (window.location.href = 'cacprompt')}>
+			on:click={() => (window.location.href = 'cacprompt')}
+		>
 			Start a New Campaign
 		</button>
-	</div>	
+	</div>
 </div>
-
 
 <style>
 	:root {
@@ -99,6 +127,11 @@
 		border-radius: 8px;
 	}
 
+	.button-layout {
+		display: flex;
+		flex-direction: column;
+	}
+
 	.button {
 		padding: 0.5rem 1rem;
 		margin-bottom: 10px;
@@ -116,6 +149,16 @@
 
 	.enter-button:hover {
 		background-color: #4d7266;
+	}
+
+	.delete-button {
+		background-color: var(--flame);
+		margin: 30px;
+		margin-bottom: unset;
+	}
+
+	.delete-button:hover {
+		background-color: #a53817;
 	}
 
 	.new-campaign {
