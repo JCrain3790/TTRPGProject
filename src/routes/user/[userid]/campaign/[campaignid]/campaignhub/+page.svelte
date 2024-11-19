@@ -10,6 +10,7 @@
 	 */
 	let chatLog = [];
 	let loading = false;
+	let freshLoad = false;
 	let resp = 0;
 	/**
 	 * @type {string | number | NodeJS.Timeout | undefined}
@@ -85,6 +86,7 @@
 				content: item.data.content
 			}));
 			chatLog = [...chatLog];
+			freshLoad = true;
 		}
 		loading = false;
 	});
@@ -105,6 +107,8 @@
 			});
 
 			const data = await res.json();
+
+			freshLoad = false;
 
 			chatLog = [...chatLog, { role: 'assistant', content: data.choices[0]?.message?.content }];
 		} catch (error) {
@@ -194,18 +198,21 @@ color: #FF9505"
 					<span class={chatLog.toReversed()[0].role === 'user' ? 'user' : 'assistant'}>
 						{chatLog.toReversed()[0].role === 'user' ? 'You' : 'Assistant'}:
 					</span>
+					{#if freshLoad}
+					{chatLog.toReversed()[0].content}
+					{/if}
 				{/if}
 				<pre bind:this={typing}></pre>
 			</li>
 
 			{#each chatLog.toReversed() as message, index}
-				{#if !(index == 0 && message.role != 'user')}
+				{#if !(index == 0 || index + 1 == chatLog.length)}
 					<li>
 						<span class={message.role === 'user' ? 'user' : 'assistant'}>
 							{message.role === 'user' ? 'You' : 'Assistant'}:
 						</span>
 						{#if message.role === 'assistant'}
-							{@html message.content}
+							<pre>{@html message.content}</pre>
 						{:else}
 							<pre>{message.content}</pre>
 						{/if}
