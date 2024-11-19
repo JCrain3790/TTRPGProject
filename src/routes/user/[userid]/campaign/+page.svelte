@@ -85,14 +85,6 @@
 		--background: var(--eerie-black);
 	}
 
-	body {
-		background-color: var(--background);
-		color: var(--sage);
-		font-family: Arial, sans-serif;
-		margin: 0;
-		padding: 0;
-	}
-
 	.content {
 		display: flex;
 		flex-direction: column;
@@ -112,7 +104,7 @@
 
 	.campaign-list {
 		width: 100%;
-		max-width: 600px;
+		max-width: 800px;
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
@@ -138,7 +130,7 @@
 		border: none;
 		border-radius: 5px;
 		cursor: pointer;
-		font-size: 1rem;
+		font-size: 1.3rem;
 		color: #fff;
 		transition: background-color 0.2s;
 	}
@@ -155,6 +147,7 @@
 		background-color: var(--flame);
 		margin: 30px;
 		margin-bottom: unset;
+		font-size: .7rem;
 	}
 
 	.delete-button:hover {

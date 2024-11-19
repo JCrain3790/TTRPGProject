@@ -5,9 +5,15 @@
 	/** @type {import('./$types').PageData} */
 	export let data;
 	let input = '';
+	/**
+	 * @type {any[]}
+	 */
 	let chatLog = [];
 	let loading = false;
 	let resp = 0;
+	/**
+	 * @type {string | number | NodeJS.Timeout | undefined}
+	 */
 	let intervalHolder;
 	let campaignName = 'Campaign Assistant';
 	let campaign = data.campaign;
@@ -36,7 +42,10 @@
 				const res = await fetch('/api/chat', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ messages: [{role: 'user', content: prompt}], campaignID: campaign.id })
+					body: JSON.stringify({
+						messages: [{ role: 'user', content: prompt }],
+						campaignID: campaign.id
+					})
 				});
 
 				const resdata = await res.json();
@@ -63,8 +72,21 @@
 				];
 			}
 		} else {
-			
+			loading = true;
+			//1. fetch conversation from our api
+			const conv = await fetch(`/api/chat?id=${campaign.id}`, {
+				method: 'GET',
+				headers: { 'Content-Type': 'application/json' }
+			});
+			//2. unwrap response
+			const convResponse = await conv.json();
+			chatLog = convResponse.map((/** @type {{ data: { role: any; content: any; }; }} */ item) => ({
+				role: item.data.role,
+				content: item.data.content
+			}));
+			chatLog = [...chatLog];
 		}
+		loading = false;
 	});
 
 	async function sendMessage() {
@@ -198,7 +220,6 @@ color: #FF9505"
 		placeholder="Type your message..."
 		on:keydown={(e) => e.key === 'Enter' && sendMessage()}
 		disabled={loading}
-		autofocus
 	/>
 	<button on:click={sendMessage} disabled={loading}>
 		{loading ? 'Sending...' : 'Send'}

@@ -8,7 +8,7 @@ export async function POST({ request, locals }) {
 	try {
 		let lastOriginalMessage = reqdata.messages.pop();
 		saveMessage(lastOriginalMessage, campaignID, locals.supabase);
-		let preamble = 'Only answer questions related to the campaign. If the message does not seem to relate to the rest of the conversation tell me to stay on topic. Question:';
+		let preamble = 'Only answer questions related to the campaign. If the message does not seem to relate to the rest of the conversation tell me to stay on topic. However, be open to casual questions even if the word campaign is not used. Question:';
 		if (reqdata.messages.length < 1) {
 			preamble = ''
 		}
@@ -66,7 +66,7 @@ export async function GET({ url, locals }) {
 	let id = url.searchParams.get('id');
 	if (id) {
 		//get specific campaign here
-		const response = await locals.supabase.from('Chat').select('*');
+		const response = await locals.supabase.from('Chat').select('*').eq('campaign', id).order('id', {ascending: true});
 		console.log(JSON.stringify(response));
 		const data = response.data;
 		return json(data);
