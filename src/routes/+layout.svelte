@@ -42,7 +42,7 @@
 
 <nav class="navbar">
 	<div class="nav-links">
-		<a href="/">LoreForge</a>
+		<a href="/" style="color: var(--flame);">LOREFORGE</a>
 		<a href="/features">Features</a>
 		<a href="/about">About</a>
 	</div>
@@ -57,6 +57,15 @@
 	</div>
 </nav>
 
-
-
 <slot></slot>
+
+<style>
+	:root {
+		--eerie-black: #1f1e1e;
+		--flame: #ec4e20;
+		--orange: #ff9505;
+		--sage: #b6be9c;
+		--blue: #7b9e87;
+		--background: var(--eerie-black);
+	}
+</style>

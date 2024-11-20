@@ -10,29 +10,29 @@
 	</p>
 </div>
 <style>
-	.container {
+.container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	padding: 20px;
+	padding: 1.25rem; /* 20px */
 	text-align: center;
 	color: #ffffff;
-	
 }
 
 .title {
 	color: #ff4500;
-	font-size: 2.5rem;
-	margin: 50px 0 10px;
-	font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+	font-size: 2.5rem; /* 2.5rem remains unchanged */
+	margin: 3.125rem 0 0.625rem; /* 50px, 0px, 10px */
+	font-family: 'Poppins', sans-serif;
 }
 
 .messages {
-	max-width: 700px;
-	font-size: 1.1rem;
-	line-height: 1.6;
-	margin-top: 10px;
-	font-family: Arial, Helvetica, sans-serif;
+	max-width: 43.75rem; /* 700px */
+	font-size: 1.1rem; /* 17.6px approximated as 1.1rem */
+	line-height: 1.6; /* unchanged */
+	margin-top: 0.625rem; /* 10px */
+	font-family: 'Poppins', sans-serif;
 }
+
 </style>
