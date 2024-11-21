@@ -42,11 +42,14 @@
 
 <nav class="navbar">
 	<div class="nav-links">
-		<a href="/" style="color: var(--flame);">LOREFORGE</a>
-		<a href="/features">Features</a>
-		<a href="/about">About</a>
+		<a href="/" style="color: var(--flame); font-size: 16pt" >LOREFORGE</a>
+	</div>
+	<div class="nav-links" style="justify-content:end">
+		
 	</div>
 	<div class="auth">
+		<a href="/features">Features</a>
+		<a href="/about">About</a>
 		{#if session}
 			<a href="/user/{session.user.id}/campaign">Campaigns</a>
 			<a href="">{session.user.email}</a>
