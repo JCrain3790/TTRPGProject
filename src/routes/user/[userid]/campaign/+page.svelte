@@ -98,7 +98,6 @@
 	}
 
 	h1 {
-		color: var(--orange);
 		margin-bottom: 1.5rem;
 	}
 

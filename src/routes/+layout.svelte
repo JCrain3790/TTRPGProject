@@ -7,6 +7,8 @@
 	// @ts-ignore
 	$: ({ session, supabase } = data);
 
+	let text = 'testing';
+
 	onMount(() => {
 		const { data } = supabase.auth.onAuthStateChange((newSession) => {
 			// @ts-ignore
@@ -38,16 +40,20 @@
 	async function login() {
 		goto('/auth');
 	}
+
+	export let loginFunction = () => {
+		goto('/auth');
+	}
 </script>
 
 <nav class="navbar">
 	<div class="nav-links">
-		<a href="/" style="color: var(--flame); font-size: 16pt" >LOREFORGE</a>
+		<a href="/" style="color: var(--flame); font-size: 20pt" >LOREFORGE</a>
 	</div>
 	<div class="nav-links" style="justify-content:end">
 		
 	</div>
-	<div class="auth">
+	<div class="auth nav-links">
 		<a href="/features">Features</a>
 		<a href="/about">About</a>
 		{#if session}
@@ -60,7 +66,7 @@
 	</div>
 </nav>
 
-<slot></slot>
+<slot parentprop={text}></slot>
 
 <style>
 	:root {
