@@ -40,10 +40,6 @@
 	async function login() {
 		goto('/auth');
 	}
-
-	export let loginFunction = () => {
-		goto('/auth');
-	}
 </script>
 
 <nav class="navbar">
@@ -66,7 +62,7 @@
 	</div>
 </nav>
 
-<slot parentprop={text}></slot>
+<slot></slot>
 
 <style>
 	:root {
