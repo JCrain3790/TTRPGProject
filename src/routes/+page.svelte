@@ -1,5 +1,4 @@
 <script>
-	export let parentprop
 </script>
 <div>
 	<div class="container content-left-spacing hero">
@@ -8,7 +7,7 @@
 			Unleash your creativity with the ultimate toolkit for building immersive worlds and
 			unforttable campaigns.
 		</p>
-		<button on:click={login} type="submit">Sign up today</button>
+		<button type="submit" style="margin-top: 3rem;">Sign up today</button>
 	</div>
 	<div class="container content-center-spacing subtitle">
 		<h2>Streamline and Organize</h2>
@@ -16,6 +15,7 @@
 			Store every detail of your campaign in one place with intuitive tools designed for Game
 			Masters of all levels.
 		</p>
+		<button type="submit" style="margin-top: 3rem;">Sign up today</button>
 	</div>
 	<div class="container content-left-spacing subtitle">
 		<h2>Fuel Your Imagination</h2>
@@ -23,6 +23,7 @@
 			Harness the power of AI to spark ideas, fill gaps, and expand your storytelling like never
 			before.
 		</p>
+		<button type="submit" style="margin-top: 3rem;">Sign up today</button>
 	</div>
 </div>
 

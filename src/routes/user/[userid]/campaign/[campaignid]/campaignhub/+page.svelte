@@ -18,6 +18,7 @@
 	let intervalHolder;
 	let campaignName = 'Campaign Assistant';
 	let campaign = data.campaign;
+	let typingContent = '';
 	if (campaign && campaign.name) {
 		campaignName = campaign.name;
 	}
@@ -31,10 +32,8 @@
 				// goto('aiassistant');
 				loading = true;
 				const prompt = `
-					Create a TTRPG campaign with the following details:
-					- Name: ${jsonData.name}
+					Create a ${jsonData.ruleset.join(', ')} campaign ${jsonData.name ? 'called ' + jsonData.name : 'with a random name '} with the following additional details:
 					- Themes: ${jsonData.theme.join(', ')}
-					- Ruleset: ${jsonData.ruleset.join(', ')}
 					- Focus: ${jsonData.focus.join(', ')}
 					- Scale: ${jsonData.scale.join(', ')}
 					- Inspiration: ${jsonData.inspiration.join(', ')}
@@ -94,7 +93,7 @@
 	async function sendMessage() {
 		if (!input) return;
 		loading = true;
-		typing.innerHTML = '';
+		typingContent = '';
 		chatLog = [...chatLog, { role: 'user', content: input }];
 		if (intervalHolder) {
 			clearInterval(intervalHolder);
@@ -109,8 +108,38 @@
 			const data = await res.json();
 
 			freshLoad = false;
-
-			chatLog = [...chatLog, { role: 'assistant', content: data.choices[0]?.message?.content }];
+			let unformatted = data.choices[0]?.message?.content;
+			let formatted = '';
+			let insideBold = false;
+			let insideItalic = false;
+			for (let index = 0; index < unformatted.length; index++) {
+				const element = unformatted[index];
+				if (element == '*') {
+					if (unformatted[index+1] == '*') {
+						if (insideBold) {
+							insideBold = !insideBold;
+							formatted += '</strong>';
+								index = index+1;
+								continue;
+						}
+						insideBold = !insideBold;
+						formatted += '<strong>'
+							index = index+1;
+							continue;
+					}
+					if (insideItalic) {
+						insideItalic = !insideItalic;
+						formatted += '</em>';
+							continue;
+					}
+					insideItalic = !insideItalic;
+					formatted += '<em>';
+						continue;
+				}
+				formatted += element; 
+			}
+			console.log(formatted)
+			chatLog = [...chatLog, { role: 'assistant', content: formatted }];
 		} catch (error) {
 			console.error('Error', error);
 			chatLog = [
@@ -136,7 +165,7 @@
 	 * @param {string} text
 	 */
 	function typeEffect(text) {
-		typing.innerHTML = '';
+		typingContent = '';
 		var i = 0;
 		var timer = setInterval(function () {
 			if (i < text.length) {
@@ -146,7 +175,7 @@
 					//skip
 				} else {
 					let letter = text.charAt(i++);
-					typing.append(letter);
+					typingContent=(typingContent+letter);
 					switch (letter) {
 						case '"':
 						case '.':
@@ -199,10 +228,14 @@ color: #FF9505"
 						{chatLog.toReversed()[0].role === 'user' ? 'You' : 'Assistant'}:
 					</span>
 					{#if freshLoad}
-					{chatLog.toReversed()[0].content}
+						{chatLog.toReversed()[0].content}
 					{/if}
 				{/if}
-				<pre bind:this={typing}></pre>
+				<div
+					style="white-space: pre-wrap;
+							word-wrap: break-word;
+							width: inherit;"
+				>{@html typingContent}</div>
 			</li>
 
 			{#each chatLog.toReversed() as message, index}
@@ -212,7 +245,13 @@ color: #FF9505"
 							{message.role === 'user' ? 'You' : 'Assistant'}:
 						</span>
 						{#if message.role === 'assistant'}
-							<pre>{@html message.content}</pre>
+							<div
+								style="white-space: pre-wrap;
+   										 word-wrap: break-word;
+   										 width: inherit;"
+							>
+								{@html message.content}
+							</div>
 						{:else}
 							<pre>{message.content}</pre>
 						{/if}

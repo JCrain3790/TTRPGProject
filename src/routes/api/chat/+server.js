@@ -8,7 +8,9 @@ export async function POST({ request, locals }) {
 	try {
 		let lastOriginalMessage = reqdata.messages.pop();
 		saveMessage(lastOriginalMessage, campaignID, locals.supabase);
-		let preamble = 'Only answer questions related to the campaign. If the message does not seem to relate to the rest of the conversation tell me to stay on topic. However, be open to casual questions even if the word "campaign" is not used. Question:';
+		//let preamble = 'Only answer questions related to the campaign. If the message does not seem to relate to the rest of the conversation tell me to stay on topic. However, be open to casual questions even if the word "campaign" is not used. Question:';
+		//let preamble = 'Answer my next question in the context of this campaign, if you are unable to answer the question as it relates to the campaign then please tell me to stay on topic. Question: '
+		let preamble = ''
 		if (reqdata.messages.length < 1) {
 			preamble = ''
 		}
