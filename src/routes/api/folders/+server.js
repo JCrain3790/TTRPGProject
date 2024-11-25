@@ -60,4 +60,12 @@ export async function PATCH({ request, locals }) {
 	return json(resp.data);
 }
 /** @type {import('./$types').RequestHandler} */
-export async function DELETE() {}
+export async function DELETE({ url, locals }) {
+	let id = url.searchParams.get('id');
+	if (id) {
+		const response = await locals.supabase.from('folders').delete();
+		const data = response.data;
+		return json(data);
+	}
+	return error(400, 'Please include a campaign id.');
+}
