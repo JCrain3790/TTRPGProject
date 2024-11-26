@@ -1,27 +1,32 @@
 <script>
+	import { favoriteColor } from "$lib/stores";
 </script>
+
 <div>
 	<div class="container content-left-spacing hero">
 		<h1>Forge Your Next Adventure</h1>
 		<p>
 			Unleash your creativity with the ultimate toolkit for building immersive worlds and
-			unforttable campaigns.
+			unforgettable campaigns. Dive into limitless possibilities and craft stories that captivate
+			your players. With LoreForge, every idea can become a legendary tale.
 		</p>
 		<button type="submit" style="margin-top: 3rem;">Sign up today</button>
 	</div>
 	<div class="container content-center-spacing subtitle">
 		<h2>Streamline and Organize</h2>
-		<p>
-			Store every detail of your campaign in one place with intuitive tools designed for Game
-			Masters of all levels.
-		</p>
+		<pre style="text-align: center;">
+			Store every detail of your campaign in one place with intuitive tools designed for Game Masters of all levels. 
+			Effortlessly track plotlines, world lore, and player progress all in a
+			single, organized hub. Say goodbye to chaos and focus on what matters—telling your story.
+		</pre>
 		<button type="submit" style="margin-top: 3rem;">Sign up today</button>
 	</div>
 	<div class="container content-left-spacing subtitle">
 		<h2>Fuel Your Imagination</h2>
 		<p>
 			Harness the power of AI to spark ideas, fill gaps, and expand your storytelling like never
-			before.
+			before. Let our AI assistant inspire your next great twist, breathe life into your NPCs, and
+			keep your adventures unpredictable and engaging.
 		</p>
 		<button type="submit" style="margin-top: 3rem;">Sign up today</button>
 	</div>
@@ -64,6 +69,10 @@
 		margin: 0rem;
 	}
 	.subtitle {
+	}
+
+	p {
+		padding-right: 400px;
 	}
 
 	.messages {

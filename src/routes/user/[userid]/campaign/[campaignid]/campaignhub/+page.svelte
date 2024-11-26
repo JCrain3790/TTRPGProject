@@ -1,7 +1,10 @@
 <script>
+	// @ts-nocheck
+
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-
+	import { folders } from '../folders';
+	import { getIcon } from '$lib/assets';
 	/** @type {import('./$types').PageData} */
 	export let data;
 	let input = '';
@@ -22,6 +25,11 @@
 	if (campaign && campaign.name) {
 		campaignName = campaign.name;
 	}
+	let ow;
+	let sow = 0;
+	let somw = () => {
+		return ow * 0.9;
+	};
 	onMount(async () => {
 		if (data.startingprompt) {
 			let jsonData = JSON.parse(data.startingprompt);
@@ -115,30 +123,30 @@
 			for (let index = 0; index < unformatted.length; index++) {
 				const element = unformatted[index];
 				if (element == '*') {
-					if (unformatted[index+1] == '*') {
+					if (unformatted[index + 1] == '*') {
 						if (insideBold) {
 							insideBold = !insideBold;
 							formatted += '</strong>';
-								index = index+1;
-								continue;
+							index = index + 1;
+							continue;
 						}
 						insideBold = !insideBold;
-						formatted += '<strong>'
-							index = index+1;
-							continue;
+						formatted += '<strong>';
+						index = index + 1;
+						continue;
 					}
 					if (insideItalic) {
 						insideItalic = !insideItalic;
 						formatted += '</em>';
-							continue;
+						continue;
 					}
 					insideItalic = !insideItalic;
 					formatted += '<em>';
-						continue;
+					continue;
 				}
-				formatted += element; 
+				formatted += element;
 			}
-			console.log(formatted)
+			console.log(formatted);
 			chatLog = [...chatLog, { role: 'assistant', content: formatted }];
 		} catch (error) {
 			console.error('Error', error);
@@ -175,7 +183,7 @@
 					//skip
 				} else {
 					let letter = text.charAt(i++);
-					typingContent=(typingContent+letter);
+					typingContent = typingContent + letter;
 					switch (letter) {
 						case '"':
 						case '.':
@@ -192,84 +200,144 @@
 		}, speed);
 		return timer;
 	}
+	async function toggleSlideout() {
+		if (sow == 0) {
+			sow = somw();
+		} else {
+			sow = 0;
+		}
+	}
+	async function openSlideout() {
+		sow = somw();
+	}
+	async function closeSlideout() {
+		sow = 0;
+		if(lastFolder){
+			setTimeout(() => {
+				lastFolder.style.cssText='';
+			}, 1500)
+		}
+	}
+	let lastFolder;
+	async function toggleFolder(e) {
+		console.log(e.currentTarget);
+		if(lastFolder){
+			lastFolder.style.cssText='';
+		}
+		e.currentTarget.style.cssText='background-color: #ec4e20; margin:0px; width:120px; transition: all 500ms; border-top-right-radius:0px; border-bottom-right-radius:0px;'
+		lastFolder=e.currentTarget;
+	}
 </script>
-
-<div
-	style="display: flex;
-flex-direction: column;
-justify-content: center;
-padding-left:20%;
-padding-right:20%;"
->
-	<h1
-		style="
+<h1
+style="
 display: flex;
 flex-direction: row;
 justify-content: center;
 color: #FF9505"
-	>
-		{campaignName}
-	</h1>
-	<div
-		style="height: 60vh;
-    display:flex;
-    flex-direction:column-reverse;"
-	>
-		<ul
-			style="display:flex;
-    flex-direction:column-reverse;
-    overflow-y:scroll;
-    padding-right: 34px"
-			id="list"
-		>
-			<li>
-				{#if chatLog.length > 0 && chatLog.toReversed()[0].role != 'user'}
-					<span class={chatLog.toReversed()[0].role === 'user' ? 'user' : 'assistant'}>
-						{chatLog.toReversed()[0].role === 'user' ? 'You' : 'Assistant'}:
-					</span>
-					{#if freshLoad}
-						{chatLog.toReversed()[0].content}
-					{/if}
-				{/if}
-				<div
-					style="white-space: pre-wrap;
-							word-wrap: break-word;
-							width: inherit;"
-				>{@html typingContent}</div>
-			</li>
-
-			{#each chatLog.toReversed() as message, index}
-				{#if !(index == 0 || index + 1 == chatLog.length)}
-					<li>
-						<span class={message.role === 'user' ? 'user' : 'assistant'}>
-							{message.role === 'user' ? 'You' : 'Assistant'}:
-						</span>
-						{#if message.role === 'assistant'}
-							<div
-								style="white-space: pre-wrap;
-   										 word-wrap: break-word;
-   										 width: inherit;"
-							>
-								{@html message.content}
-							</div>
-						{:else}
-							<pre>{message.content}</pre>
-						{/if}
-					</li>
-				{/if}
-			{/each}
-		</ul>
+>
+{campaignName}
+</h1>
+<svelte:window on:click={closeSlideout} />
+<div style="display: flex; flex-direction:row; padding: 2rem;">
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<div on:click|stopPropagation style="display: flex; flex-direction: column; gap: 0.50rem;">
+		{#each $folders as folder}
+			<!-- svelte-ignore a11y-click-events-have-key-events -->
+			<!-- svelte-ignore a11y-no-static-element-interactions -->
+			<div class="folder orange-hover" on:click={openSlideout} on:click={(e)=> {toggleFolder(e)}}>
+				<img src={getIcon(folder.icon)} alt="" height="25px" width="25px" />
+				<p style="color: #e8eaed; margin:0px; padding:0px;">{folder.name}</p>
+			</div>
+		{/each}
 	</div>
-	<input
-		type="text"
-		bind:value={input}
-		placeholder="Type your message..."
-		on:keydown={(e) => e.key === 'Enter' && sendMessage()}
-		disabled={loading}
-	/>
-	<button on:click={sendMessage} disabled={loading}>
-		{loading ? 'Sending...' : 'Send'}
-	</button>
+	<!-- svelte-ignore a11y-click-events-have-key-events -->
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<div
+		on:click|stopPropagation
+		style="position: absolute; 
+				transform: translateX(120px); 
+				width:{sow}px; height:69vh; 
+				background-color: #1f1e1e85; 
+				backdrop-filter:blur(5px); 
+				transition: all 1s ease-in 500ms; 
+				z-index: 2;
+				border:solid #ec4e20;
+				border-width:4px;
+				border-right-width:{sow==0?0:8}px;
+				border-left-width:{sow==0?0:8}px;
+				border-top-right-radius:8px;
+				border-bottom-right-radius:8px;"
+	></div>
+	<div
+		style="display: flex;
+	flex-direction: column;
+	justify-content: center;"
+		bind:offsetWidth={ow}
+	>
+		<div
+			style="height: 60vh;
+		display:flex;
+		flex-direction:column-reverse;"
+		>
+			<ul
+				style="display:flex;
+		flex-direction:column-reverse;
+		overflow-y:scroll;
+		padding-right: 34px"
+				id="list"
+			>
+				<li>
+					{#if chatLog.length > 0 && chatLog.toReversed()[0].role != 'user'}
+						<span class={chatLog.toReversed()[0].role === 'user' ? 'user' : 'assistant'}>
+							{chatLog.toReversed()[0].role === 'user' ? 'You' : 'Assistant'}:
+						</span>
+						{#if freshLoad}
+							{chatLog.toReversed()[0].content}
+						{/if}
+					{/if}
+					<div
+						style="white-space: pre-wrap;
+								word-wrap: break-word;
+								width: inherit;"
+					>
+						{@html typingContent}
+					</div>
+				</li>
+
+				{#each chatLog.toReversed() as message, index}
+					{#if !(index == 0 || index + 1 == chatLog.length)}
+						<li>
+							<span class={message.role === 'user' ? 'user' : 'assistant'}>
+								{message.role === 'user' ? 'You' : 'Assistant'}:
+							</span>
+							{#if message.role === 'assistant'}
+								<div
+									style="white-space: pre-wrap;
+											word-wrap: break-word;
+											width: inherit;"
+								>
+									{@html message.content}
+								</div>
+							{:else}
+								<pre>{message.content}</pre>
+							{/if}
+						</li>
+					{/if}
+				{/each}
+			</ul>
+		</div>
+		<input
+			type="text"
+			bind:value={input}
+			placeholder="Type your message..."
+			on:keydown={(e) => e.key === 'Enter' && sendMessage()}
+			disabled={loading}
+		/>
+		<button on:click={sendMessage} disabled={loading}>
+			{loading ? 'Sending...' : 'Send'}
+		</button>
+	</div>
 </div>
 
 <style>
@@ -299,6 +367,22 @@ color: #FF9505"
 	.assistant {
 		font-weight: bold;
 		color: #7b9e87;
+	}
+	.folder {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		height: 5rem;
+		width: 5rem;
+		border-radius: 1rem;
+		background-color: #272727;
+		transition: all 200ms;
+		margin-right:40px;
+	}
+	.orange-hover:hover {
+		background-color: #ec4e20;
+		transition: all 500ms;
 	}
 
 	/*test*/

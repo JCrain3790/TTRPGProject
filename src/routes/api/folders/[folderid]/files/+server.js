@@ -1,9 +1,10 @@
 import { error, json } from '@sveltejs/kit';
 
 /** @type {import('./$types').RequestHandler} */
-export async function GET({ url, locals }) {
-	let folderID = url.searchParams.get('folder_id');
+export async function GET({ url, locals, params }) {
+	let folderID = params.folderid;
 	let fileID = url.searchParams.get('file_id');
+
 	if (folderID) {
 		const response = await locals.supabase.from('files_folder').select('*');
 		const data = response.data;

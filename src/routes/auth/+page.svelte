@@ -3,7 +3,9 @@
 </script>
 
 <div class="auth-container">
+	
 	<form class="auth-form" method="POST" action="?/login">
+		<h2 style="text">Login</h2>
 		<label>
 			Email
 			<input name="email" type="email" required />
@@ -31,7 +33,7 @@
 	align-items: center;
 	min-height: 100vh;
 	background-color: var(--eerie-black);
-	padding: 20px;
+	padding: 16px;
 }
 
 .auth-form {
@@ -40,8 +42,8 @@
 	align-items: stretch;
 	width: 100%;
 	max-width: 400px;
-	padding: 20px;
-	background-color: white;
+	padding: 32px;
+	background-color: #272727;
 	border-radius: 8px;
 	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
@@ -49,14 +51,15 @@
 label {
 	margin-bottom: 15px;
 	font-weight: bold;
-	color: #333;
+	color: #616161;
 }
 
 input {
+	background-color: #5b5b5b;
 	width: 100%;
 	padding: 10px;
 	margin-top: 5px;
-	border: 1px solid #ccc;
+	border: 1px solid #5b5b5b;
 	border-radius: 5px;
 }
 
@@ -71,12 +74,7 @@ button {
 
 button[type="submit"] {
 	background-color: #ff4500;
-	color: white;
-}
-
-button[type="button"] {
-	background-color: #ccc;
-	color: #333;
+	color: rgb(34, 34, 34);
 }
 
 button:hover {

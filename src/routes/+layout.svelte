@@ -2,6 +2,7 @@
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { onMount } from 'svelte';
+	import { favoriteColor } from '$lib/stores';
 
 	export let data;
 	// @ts-ignore
@@ -52,6 +53,7 @@
 	<div class="auth nav-links">
 		<a href="/features">Features</a>
 		<a href="/about">About</a>
+		<a href="">Sign up</a>
 		{#if session}
 			<a href="/user/{session.user.id}/campaign">Campaigns</a>
 			<a href="">{session.user.email}</a>
