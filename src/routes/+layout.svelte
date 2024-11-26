@@ -45,7 +45,7 @@
 
 <nav class="navbar">
 	<div class="nav-links">
-		<a href="/" style="color: var(--flame); font-size: 20pt" >LOREFORGE</a>
+		<a href="/" style="color: var(--flame); font-size: 24pt; font-weight:bold;" >LOREFORGE</a>
 	</div>
 	<div class="nav-links" style="justify-content:end">
 		
@@ -53,12 +53,13 @@
 	<div class="auth nav-links">
 		<a href="/features">Features</a>
 		<a href="/about">About</a>
-		<a href="">Sign up</a>
+		
 		{#if session}
 			<a href="/user/{session.user.id}/campaign">Campaigns</a>
 			<a href="">{session.user.email}</a>
 			<button on:click={logout} type="submit">Logout</button>
 		{:else if $page.url.pathname !== '/auth'}
+			<a href="">Sign up</a>
 			<button on:click={login} type="submit">Login</button>
 		{/if}
 	</div>
