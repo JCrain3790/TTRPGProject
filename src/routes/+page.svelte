@@ -83,4 +83,14 @@
 		margin-top: 0.625rem; /* 10px */
 		font-family: 'Poppins', sans-serif;
 	}
+	button {
+				background-color: var(--flame);
+				color: #e0e0e0;
+				border: 1px solid #ec4e20;
+				border-radius: 4px;
+				padding: 8px 24px;
+				cursor: pointer;
+				font-weight: bold;
+				font-size: 1rem;
+			}
 </style>
