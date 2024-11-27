@@ -8,7 +8,7 @@ export async function load({params, fetch}) {
        return redirect(305, '/campaign'); 
     }
 
-    const fResponse = await fetch(`/api/folders?campaign_id=${params.campaignid}`);
+    const fResponse = await fetch(`/api/campaigns/${params.campaignid}/folders?campaign_id=${params.campaignid}`);
     const fData = await fResponse.json();
     folders.set(fData);
     return {campaign: (await response.json())[0]};

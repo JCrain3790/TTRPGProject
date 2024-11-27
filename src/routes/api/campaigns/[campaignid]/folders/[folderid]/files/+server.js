@@ -3,25 +3,32 @@ import { error, json } from '@sveltejs/kit';
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url, locals, params }) {
 	let folderID = params.folderid;
+	let campaignID = params.campaignid;
 	let fileID = url.searchParams.get('file_id');
 
-	if (folderID) {
-		const response = await locals.supabase.from('files_folder').select('*');
-		const data = response.data;
-		return json(data);
+	const response = await locals.supabase.from('Campaigns').select(`*, folders(*, files_folder(*, files(*)))`).eq('id', campaignID);
+	if(response.error) {
+		return error(503, response.error);
 	}
+	const folderIndex = response.data[0].folders.findIndex((/** @type {{ id: string; }} */ folder) => {
+		return folderID == folder.id;
+	});
+	if (folderIndex < 0) {
+		return error(400, 'Folder does not exist');
+	}
+	const folder = response.data[0].folders[folderIndex];
 	if (fileID) {
-		const response = await locals.supabase
-			.from('files_folder')
-			.select('*')
-			.eq('files_id', fileID);
-		const data = response.data;
-		return json(data);
+		const fileIndex = folder.files_folder.findIndex((/** @type {{ files: { id: string; }; }} */ file_folder) => {
+			return file_folder.files.id == fileID;
+		});
+		if (fileIndex < 0) {
+			return error(400, 'File does not exist.')
+		}
+		return json(folder.files_folder[fileIndex]);
 	}
-
-	const response = await locals.supabase.from('files_folder').select('*');
-	const data = response.data;
-	return json(data);
+	return json(folder.files_folder.map((/** @type {{ files: any; }} */ e) => {
+		return e.files;
+	}));
 }
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, locals }) {

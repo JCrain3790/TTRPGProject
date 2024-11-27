@@ -1,26 +1,20 @@
 import { error, json } from '@sveltejs/kit';
 
 /** @type {import('./$types').RequestHandler} */
-export async function GET({ url, locals }) {
-	let campaignID = url.searchParams.get('campaign_id');
-	let id = url.searchParams.get('id');
-	if (id) {
-		const response = await locals.supabase.from('folders').select('*');
-		const data = response.data;
-		return json(data);
-	}
-	if (campaignID) {
-		const response = await locals.supabase
-			.from('folders')
-			.select('*')
-			.eq('campaign_id', campaignID);
-		const data = response.data;
-		return json(data);
-	}
+export async function GET({ url, locals, params }) {
+	let campaignID = params.campaignid;
 
-	const response = await locals.supabase.from('folders').select('*');
-	const data = response.data;
-	return json(data);
+	const response = await locals.supabase.from('Campaigns').select(`*, folders(*, files_folder(*, files(*)))`).eq('id', campaignID);
+	if(response.error) {
+		return error(503, response.error);
+	}
+	const folders = response.data[0].folders;
+	for ( const folder of folders) {
+		folder.files_folder = folder.files_folder.map((/** @type {{ files: any; }} */ e) => {
+			return e.files;
+		})
+	}
+	return json(folders);
 }
 /** @type {import('./$types').RequestHandler} */
 export async function POST({ request, locals }) {

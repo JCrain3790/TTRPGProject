@@ -12,7 +12,11 @@
 			rel="stylesheet"
 		/>
 	</head>
-	<body data-sveltekit-preload-data="hover" class="layout-width" style="background-color: var(--eerie-black)">
+	<body
+		data-sveltekit-preload-data="hover"
+		class="layout-width"
+		style="background-color: var(--eerie-black)"
+	>
 		<div style="display: contents">%sveltekit.body%</div>
 		<style>
 			:root {
@@ -28,19 +32,34 @@
 			*::after {
 				box-sizing: border-box;
 			}
-			.layout-width{
-				margin:auto;
+			.layout-width {
+				margin: auto;
 				max-width: 1152px;
 			}
 			h1,
 			h2,
 			h3,
+			h4,
 			a,
 			li,
 			p,
+			summary,
 			pre {
-				font-family: "Poppins" ;
+				font-family: 'Poppins';
 				color: rgb(215, 215, 215);
+			}
+			@keyframes details-show {
+				from {
+					opacity: 0;
+					transform: var(--details-translate, translateY(-0.5em));
+				}
+			}
+
+			details[open] > *:not(summary) {
+				animation: details-show 150ms ease-in-out;
+			}
+			summary:hover {
+				cursor: pointer;
 			}
 			.navbar {
 				height: 5rem;
@@ -109,6 +128,5 @@
 				background-color: #555;
 			}
 		</style>
-		
 	</body>
 </html>

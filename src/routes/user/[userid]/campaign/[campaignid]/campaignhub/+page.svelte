@@ -212,30 +212,34 @@
 	}
 	async function closeSlideout() {
 		sow = 0;
-		if(lastFolder){
+		if (lastFolder) {
 			setTimeout(() => {
-				lastFolder.style.cssText='';
-			}, 1500)
+				lastFolder.style.cssText = '';
+			}, 1500);
 		}
 	}
 	let lastFolder;
-	async function toggleFolder(e) {
-		console.log(e.currentTarget);
-		if(lastFolder){
-			lastFolder.style.cssText='';
+	let folderData;
+	async function toggleFolder(e, folder) {
+		folderData = folder;
+
+		if (lastFolder) {
+			lastFolder.style.cssText = '';
 		}
-		e.currentTarget.style.cssText='background-color: #ec4e20; margin:0px; width:120px; transition: all 500ms; border-top-right-radius:0px; border-bottom-right-radius:0px;'
-		lastFolder=e.currentTarget;
+		e.currentTarget.style.cssText =
+			'background-color: #ec4e20; margin:0px; width:120px; transition: all 500ms; border-top-right-radius:0px; border-bottom-right-radius:0px;';
+		lastFolder = e.currentTarget;
 	}
 </script>
+
 <h1
-style="
+	style="
 display: flex;
 flex-direction: row;
 justify-content: center;
 color: #FF9505"
 >
-{campaignName}
+	{campaignName}
 </h1>
 <svelte:window on:click={closeSlideout} />
 <div style="display: flex; flex-direction:row; padding: 2rem;">
@@ -245,7 +249,13 @@ color: #FF9505"
 		{#each $folders as folder}
 			<!-- svelte-ignore a11y-click-events-have-key-events -->
 			<!-- svelte-ignore a11y-no-static-element-interactions -->
-			<div class="folder orange-hover" on:click={openSlideout} on:click={(e)=> {toggleFolder(e)}}>
+			<div
+				class="folder orange-hover"
+				on:click={openSlideout}
+				on:click={(e) => {
+					toggleFolder(e, folder);
+				}}
+			>
 				<img src={getIcon(folder.icon)} alt="" height="25px" width="25px" />
 				<p style="color: #e8eaed; margin:0px; padding:0px;">{folder.name}</p>
 			</div>
@@ -264,11 +274,38 @@ color: #FF9505"
 				z-index: 2;
 				border:solid #ec4e20;
 				border-width:4px;
-				border-right-width:{sow==0?0:8}px;
-				border-left-width:{sow==0?0:8}px;
+				border-right-width:{sow == 0 ? 0 : 8}px;
+				border-left-width:{sow == 0 ? 0 : 8}px;
 				border-top-right-radius:8px;
-				border-bottom-right-radius:8px;"
-	></div>
+				border-bottom-right-radius:8px;
+				contain:strict;"
+	>
+		<div
+			style="display: flex;
+					justify-content:space-between;
+					align-items:center"
+		>
+			<h2 style="margin: 8px;">{folderData ? folderData.name : ''}</h2>
+			<button
+				on:click={closeSlideout}
+				style="display:flex; height: 28px; width: 28px; border:none; justify-content:center; align-items:center;"
+			>
+				<img src={getIcon('close')} alt="" height="24px" width="24px" />
+			</button>
+		</div>
+		<div>
+			{#if folderData}
+				{#each folderData.files_folder as file}
+					<details>
+						<summary>
+							<h4 style="display: inline;">{file.name}</h4>
+						</summary>
+						<pre>{file.type}</pre>
+					</details>
+				{/each}
+			{/if}
+		</div>
+	</div>
 	<div
 		style="display: flex;
 	flex-direction: column;
@@ -378,7 +415,7 @@ color: #FF9505"
 		border-radius: 1rem;
 		background-color: #272727;
 		transition: all 200ms;
-		margin-right:40px;
+		margin-right: 40px;
 	}
 	.orange-hover:hover {
 		background-color: #ec4e20;
