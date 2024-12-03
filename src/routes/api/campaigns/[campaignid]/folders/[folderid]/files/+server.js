@@ -1,3 +1,4 @@
+import { FileTypes } from '$lib/enums';
 import { error, json } from '@sveltejs/kit';
 
 /** @type {import('./$types').RequestHandler} */
@@ -31,26 +32,34 @@ export async function GET({ url, locals, params }) {
 	}));
 }
 /** @type {import('./$types').RequestHandler} */
-export async function POST({ request, locals }) {
+export async function POST({ request, locals, params }) {
 	//get the body
+	let folderID = params.folderid;
 	let body = await request.json();
 	//check the body
-	if (!body.folder_id) {
-		return error(400, 'Request body must include folder_id.');
-	}
-	if (!body.file_id) {
-		return error(400, 'Request body must include file_id.');
+	if (!folderID) {
+		return error(400, 'Folder_id not found.');
 	}
 	//map the body
 	let fileBody = {
-		folder_id: body.folder_id,
 		name: body.name,
-		parent_folder: body.parent_folder ?? null
+		short_description: body.short_description ?? null,
+		long_description: body.long_description ?? null,
+		type: body.type ?? FileTypes.TEXT,
+		url: body.url ?? null,
+		data: body.data ?? null
 	};
 	//save the body
 	const resp = await locals.supabase.from('files').insert(fileBody).select();
 	if (resp.error) {
 		return error(503, resp.error);
+	}
+	const ffresp = await locals.supabase.from('files_folder').insert({
+		folder_id: params.folderid,
+		file_id: resp.data[0].id,
+	})
+	if (ffresp.error) {
+		return error(503, ffresp.error);
 	}
 	return json(resp.data);
 }

@@ -30,6 +30,11 @@
 	let somw = () => {
 		return ow * 0.9;
 	};
+	/**
+	 * @type {HTMLDialogElement}
+	 */
+	let saveDialog;
+
 	onMount(async () => {
 		if (data.startingprompt) {
 			let jsonData = JSON.parse(data.startingprompt);
@@ -230,6 +235,23 @@
 			'background-color: #ec4e20; margin:0px; width:120px; transition: all 500ms; border-top-right-radius:0px; border-bottom-right-radius:0px;';
 		lastFolder = e.currentTarget;
 	}
+	let saveName;
+	let saveFolder;
+	let saveValue;
+
+	async function savePrompt() {
+		//save to api
+		console.log(saveName, saveFolder, saveValue);
+		//close dialog box
+		saveDialog.close();
+		//clear saveName, saveFolder, saveValue
+	}
+
+	async function openPrompt(val) {
+		saveName = 'Default';
+		saveValue = val;
+		saveDialog.showModal();
+	}
 </script>
 
 <h1
@@ -324,29 +346,42 @@ color: #FF9505"
 		padding-right: 34px"
 				id="list"
 			>
-				<li>
-					{#if chatLog.length > 0 && chatLog.toReversed()[0].role != 'user'}
+				{#if chatLog.length > 0}
+					<li
+						style="background-color: {chatLog.toReversed()[0].role == 'user'
+							? '#55555555'
+							: '#27272722'}; {chatLog.toReversed()[0].role == 'user'
+							? 'border-bottom-right-radius:0px; margin-left:1rem; align-self: flex-end;'
+							: 'border-top-left-radius:0px; margin-right:1rem; align-self: flex-start;'};"
+					>
 						<span class={chatLog.toReversed()[0].role === 'user' ? 'user' : 'assistant'}>
-							{chatLog.toReversed()[0].role === 'user' ? 'You' : 'Assistant'}:
+							{chatLog.toReversed()[0].role === 'user' ? '' : 'Assistant'}
 						</span>
 						{#if freshLoad}
 							{chatLog.toReversed()[0].content}
 						{/if}
-					{/if}
-					<div
-						style="white-space: pre-wrap;
+						<div
+							style="white-space: pre-wrap;
 								word-wrap: break-word;
 								width: inherit;"
-					>
-						{@html typingContent}
-					</div>
-				</li>
-
+						>
+							{@html typingContent}
+						</div>
+						<button class="hovb" on:click={() => openPrompt(chatLog.toReversed()[0].content)}>+ Save</button>
+					</li>
+				{/if}
 				{#each chatLog.toReversed() as message, index}
 					{#if !(index == 0 || index + 1 == chatLog.length)}
-						<li>
+						<li
+							class="hovp"
+							style="background-color: {message.role == 'user'
+								? '#55555555'
+								: '#27272722'}; {message.role == 'user'
+								? 'border-bottom-right-radius:0px; margin-left:1rem; align-self: flex-end;'
+								: 'border-top-left-radius:0px; margin-right:1rem; align-self: flex-start;'}"
+						>
 							<span class={message.role === 'user' ? 'user' : 'assistant'}>
-								{message.role === 'user' ? 'You' : 'Assistant'}:
+								{message.role === 'user' ? '' : 'Assistant'}
 							</span>
 							{#if message.role === 'assistant'}
 								<div
@@ -356,8 +391,16 @@ color: #FF9505"
 								>
 									{@html message.content}
 								</div>
+								<button class="hovb"
+									on:click={() => openPrompt(message.content)}>+ Save</button
+								>
 							{:else}
-								<pre>{message.content}</pre>
+								<div
+									style="display:flex;
+											flex-direction: row-reverse;"
+								>
+									<pre>{message.content}</pre>
+								</div>
 							{/if}
 						</li>
 					{/if}
@@ -376,11 +419,47 @@ color: #FF9505"
 		</button>
 	</div>
 </div>
+<dialog
+	style="height: 70vh; width: 70vw; max-width:1000px; padding:0px; background-color: transparent; border:none;"
+	bind:this={saveDialog}
+>
+	<div
+		style="height: 100%; width: 100%; background-color: var(--eerie-black); border: solid white; border-color: #ec4e20; color:antiquewhite; font-family: 'Poppins'; font-size:small; display:flex; flex-direction:column; justify-content:center; align-items: left; border-radius:1rem; padding:2rem; "
+	>
+		<h2>Name:</h2>
+		<input type="text" bind:value={saveName} />
+		<h3>Prompt:</h3>
+		<textarea
+			bind:value={saveValue}
+			style="background-color: #0e0e0e; color: #ffffff; width: 100%; height: 70%;"
+			name=""
+			id=""
+		></textarea>
+		<h3>Location:</h3>
+		<select style="background-color: var(--eerie-black); color: #ffffff;" bind:value={saveFolder}>
+			{#each $folders as folder}
+				<option value={folder.id}>{folder.name}</option>
+			{/each}
+		</select>
+		<div style="display:flex;">
+			<button
+				on:click={savePrompt}
+				style="width:fit-content; color: #ffffff; background-color: #ec4e20; padding:4px; margin-top: 2rem;"
+				>Save</button
+			>
+			<button 
+				on:click={saveDialog.close()}
+				style="width:fit-content; padding:4px; margin-top: 2rem; margin-left: 1rem;">Cancel</button
+			>
+		</div>
+	</div>
+</dialog>
 
 <style>
 	pre {
 		white-space: pre-wrap;
 		word-wrap: break-word;
+		margin: 0px;
 	}
 	input {
 		background-color: var(--eerie-black);
@@ -393,10 +472,29 @@ color: #FF9505"
 	}
 
 	li {
+		width: fit-content;
+		border-radius: 1rem;
+		padding: 0.5rem;
+		display: flex;
+		flex-direction: column;
 		margin-bottom: 10px;
 	}
-
+	.hovp * .hovb {
+		contain: strict;
+		width: fit-content;
+		color: #ffffff;
+		background-color: #ec4e20;
+		padding: 4px;
+		height: 0px;
+	}
+	.hovp:hover * .hovb {
+		width: fit-content;
+		color: #ffffff;
+		background-color: #ec4e20;
+		padding: 4px;
+	}
 	.user {
+		text-align: right;
 		font-weight: bold;
 		color: #ec4e20;
 	}
