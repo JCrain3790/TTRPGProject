@@ -61,7 +61,7 @@ export async function POST({ request, locals, params }) {
 	if (ffresp.error) {
 		return error(503, ffresp.error);
 	}
-	return json(resp.data);
+	return json(resp.data[0]);
 }
 /** @type {import('./$types').RequestHandler} */
 export async function PATCH({ request, locals }) {
@@ -78,11 +78,15 @@ export async function PATCH({ request, locals }) {
 }
 /** @type {import('./$types').RequestHandler} */
 export async function DELETE({ url, locals }) {
-	let id = url.searchParams.get('id');
-	if (id) {
-		const response = await locals.supabase.from('files').delete();
-		const data = response.data;
-		return json(data);
+	let fileID = url.searchParams.get('file_id');
+
+	if (!fileID) {
+		return error(400, "No file id, you idiot.");
 	}
-	return error(400, 'Please include a file id.');
+	console.log(fileID);
+	const resp = await locals.supabase.from('files').delete().eq('id', parseInt(fileID));
+	if (resp.error) {
+		return error(503, resp.error);
+	}
+	return new Response(); 
 }

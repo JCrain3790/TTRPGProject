@@ -5,6 +5,8 @@
 	import { onMount } from 'svelte';
 	import { folders } from '../folders';
 	import { getIcon } from '$lib/assets';
+	import { FileTypes } from '$lib/enums';
+
 	/** @type {import('./$types').PageData} */
 	export let data;
 	let input = '';
@@ -34,6 +36,7 @@
 	 * @type {HTMLDialogElement}
 	 */
 	let saveDialog;
+	let searchTerm;
 
 	onMount(async () => {
 		if (data.startingprompt) {
@@ -62,7 +65,6 @@
 				});
 
 				const resdata = await res.json();
-				console.log(resdata.choices[0]);
 				chatLog = [{ role: 'assistant', content: resdata.choices[0]?.message?.content }];
 				intervalHolder = typeEffect(chatLog[chatLog.length - 1].content);
 				input = '';
@@ -238,19 +240,74 @@
 	let saveName;
 	let saveFolder;
 	let saveValue;
+	let saveError = '';
 
 	async function savePrompt() {
 		//save to api
-		console.log(saveName, saveFolder, saveValue);
+		const prompt = await fetch(`/api/campaigns/${campaign.id}/folders/${saveFolder}/files`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({
+				name: saveName,
+				long_description: saveValue,
+				type: FileTypes.TEXT
+			})
+		});
+		if (!prompt.ok) {
+			saveError = await prompt.json();
+			return;
+		}
+		const folderIndex = $folders.findIndex((f) => {
+			return f.id == parseInt(saveFolder);
+		});
+		if (folderIndex > -1) {
+			const file = await prompt.json();
+			console.log(file);
+			$folders[folderIndex].files_folder.push(file);
+			$folders = $folders;
+		}
+		console.log($folders);
 		//close dialog box
 		saveDialog.close();
 		//clear saveName, saveFolder, saveValue
+		saveName = '';
+		saveValue = '';
+		saveFolder = '';
 	}
 
 	async function openPrompt(val) {
 		saveName = 'Default';
 		saveValue = val;
 		saveDialog.showModal();
+	}
+
+	async function deletePrompt(fileID) {
+		console.log(folderData);
+		const folderID = folderData.id;
+		const del = await fetch(
+			`/api/campaigns/${campaign.id}/folders/${folderID}/files?file_id=${fileID}`,
+			{
+				method: 'DELETE'
+			}
+		);
+		if (!del.ok) {
+			console.log(await del.json());
+			window.alert(JSON.stringify(await del.json()));
+			return;
+		}
+		const folderIndex = $folders.findIndex((f) => {
+			return f.id == parseInt(folderID);
+		});
+		console.log(folderIndex);
+		if (folderIndex > -1) {
+			console.log($folders[folderIndex].files_folder);
+			$folders[folderIndex].files_folder = $folders[folderIndex].files_folder.filter((f) => {
+				return f.id != fileID;
+			});
+			console.log($folders[folderIndex].files_folder);
+			$folders = Array.from($folders);
+			folderData = folderData;
+		}
 	}
 </script>
 
@@ -300,7 +357,8 @@ color: #FF9505"
 				border-left-width:{sow == 0 ? 0 : 8}px;
 				border-top-right-radius:8px;
 				border-bottom-right-radius:8px;
-				contain:strict;"
+				contain:strict;
+				overflow-y: scroll;"
 	>
 		<div
 			style="display: flex;
@@ -308,24 +366,47 @@ color: #FF9505"
 					align-items:center"
 		>
 			<h2 style="margin: 8px;">{folderData ? folderData.name : ''}</h2>
+			<input type="search" bind:value={searchTerm} />
 			<button
 				on:click={closeSlideout}
-				style="display:flex; height: 28px; width: 28px; border:none; justify-content:center; align-items:center;"
+				style="display:flex; background-color: transparent; height: 28px; width: 28px; border:none; justify-content:center; align-items:center;"
 			>
 				<img src={getIcon('close')} alt="" height="24px" width="24px" />
 			</button>
 		</div>
 		<div>
-			{#if folderData}
-				{#each folderData.files_folder as file}
-					<details>
-						<summary>
-							<h4 style="display: inline;">{file.name}</h4>
-						</summary>
-						<pre>{file.type}</pre>
-					</details>
-				{/each}
-			{/if}
+			
+				{#if folderData}
+					{#each folderData.files_folder as file}
+						{#if !searchTerm || file.long_description
+								.toLowerCase()
+								.includes(searchTerm.toLowerCase())}
+							<details
+								style=" width: 100%; margin-bottom: .5rem; border: solid white 0px; border-bottom-width: 2px;"
+							>
+								<summary
+									style="display: flex; justify-content:space-between; align-items:baseline;"
+								>
+									<h3 style="display: inline; padding-left: 2rem;">{file.name}</h3>
+									<button
+										on:click={() => deletePrompt(file.id)}
+										style="display: block; background-color: transparent; height: 28px; width: 28px; border:none; justify-content:center; align-items:center; padding-right: 3rem;"
+									>
+										<img
+											src={getIcon('delete')}
+											alt=""
+											height="16px"
+											width="16px"
+											style="filter: sepia(500%) brightness(50%) saturate(600%) hue-rotate(290deg);"
+										/>
+									</button>
+								</summary>
+								<pre
+									style="background-color: #0f0f0fAA; backdrop-filter:blur(5px); padding: .5rem; padding-left: 2rem;">{file.long_description}</pre>
+							</details>
+						{/if}
+					{/each}
+				{/if}
 		</div>
 	</div>
 	<div
@@ -367,7 +448,9 @@ color: #FF9505"
 						>
 							{@html typingContent}
 						</div>
-						<button class="hovb" on:click={() => openPrompt(chatLog.toReversed()[0].content)}>+ Save</button>
+						<button class="hovb" on:click={() => openPrompt(chatLog.toReversed()[0].content)}
+							>+ Save</button
+						>
 					</li>
 				{/if}
 				{#each chatLog.toReversed() as message, index}
@@ -391,9 +474,7 @@ color: #FF9505"
 								>
 									{@html message.content}
 								</div>
-								<button class="hovb"
-									on:click={() => openPrompt(message.content)}>+ Save</button
-								>
+								<button class="hovb" on:click={() => openPrompt(message.content)}>+ Save</button>
 							{:else}
 								<div
 									style="display:flex;
@@ -441,13 +522,14 @@ color: #FF9505"
 				<option value={folder.id}>{folder.name}</option>
 			{/each}
 		</select>
+		<pre style="color: red; padding: 1rem;">{saveError ? JSON.stringify(saveError) : ''}</pre>
 		<div style="display:flex;">
 			<button
 				on:click={savePrompt}
 				style="width:fit-content; color: #ffffff; background-color: #ec4e20; padding:4px; margin-top: 2rem;"
 				>Save</button
 			>
-			<button 
+			<button
 				on:click={saveDialog.close()}
 				style="width:fit-content; padding:4px; margin-top: 2rem; margin-left: 1rem;">Cancel</button
 			>
