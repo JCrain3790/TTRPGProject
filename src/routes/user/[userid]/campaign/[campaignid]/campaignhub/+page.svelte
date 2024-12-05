@@ -375,19 +375,22 @@ color: #FF9505"
 			</button>
 		</div>
 		<div>
-			
-				{#if folderData}
-					{#each folderData.files_folder as file}
-						{#if !searchTerm || file.long_description
-								.toLowerCase()
-								.includes(searchTerm.toLowerCase())}
-							<details
-								style=" width: 100%; margin-bottom: .5rem; border: solid white 0px; border-bottom-width: 2px;"
-							>
-								<summary
-									style="display: flex; justify-content:space-between; align-items:baseline;"
-								>
-									<h3 style="display: inline; padding-left: 2rem;">{file.name}</h3>
+			{#if folderData}
+				{#each folderData.files_folder as file}
+					{#if !searchTerm || file.long_description
+							.toLowerCase()
+							.includes(searchTerm.toLowerCase())}
+						<details
+							style=" width: 100%; margin-bottom: .5rem; border: solid white 0px; border-bottom-width: 2px;"
+						>
+							<summary style="display: flex; justify-content:space-between; align-items:baseline;">
+								<h3 style="display: inline; padding-left: 2rem;">{file.name}</h3>
+								<div style="display: flex;">
+									<button
+										style="display: block; background-color: transparent; height: 28px; width: 28px; border:none; justify-content:center; align-items:center; padding-right: 1rem;"
+									>
+										<img src={getIcon('edit')} alt="" height="16px" width="16px" />
+									</button>
 									<button
 										on:click={() => deletePrompt(file.id)}
 										style="display: block; background-color: transparent; height: 28px; width: 28px; border:none; justify-content:center; align-items:center; padding-right: 3rem;"
@@ -400,13 +403,14 @@ color: #FF9505"
 											style="filter: sepia(500%) brightness(50%) saturate(600%) hue-rotate(290deg);"
 										/>
 									</button>
-								</summary>
-								<pre
-									style="background-color: #0f0f0fAA; backdrop-filter:blur(5px); padding: .5rem; padding-left: 2rem;">{file.long_description}</pre>
-							</details>
-						{/if}
-					{/each}
-				{/if}
+								</div>
+							</summary>
+							<pre
+								style="background-color: #0f0f0fAA; backdrop-filter:blur(5px); padding: .5rem; padding-left: 2rem;">{file.long_description}</pre>
+						</details>
+					{/if}
+				{/each}
+			{/if}
 		</div>
 	</div>
 	<div
