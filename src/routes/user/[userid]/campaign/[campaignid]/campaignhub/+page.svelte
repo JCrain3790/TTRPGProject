@@ -452,9 +452,15 @@ color: #FF9505"
 						>
 							{@html typingContent}
 						</div>
-						<button class="hovb" on:click={() => openPrompt(chatLog.toReversed()[0].content)}
-							>+ Save</button
-						>
+						<div style="display: flex; justify-content:end; margin: 1rem;">
+							<button
+								class="hovb"
+								on:click={() => openPrompt(chatLog.toReversed()[0].content)}
+								style="width:fit-content; padding:0px;"
+							>
+								<img src={getIcon('add')} alt="" height="24px" width="24pxpx" />
+							</button>
+						</div>
 					</li>
 				{/if}
 				{#each chatLog.toReversed() as message, index}
@@ -478,7 +484,7 @@ color: #FF9505"
 								>
 									{@html message.content}
 								</div>
-								<button class="hovb" on:click={() => openPrompt(message.content)}>+ Save</button>
+									<button class="hovb" on:click={() => openPrompt(message.content)}>+ Save</button>
 							{:else}
 								<div
 									style="display:flex;
