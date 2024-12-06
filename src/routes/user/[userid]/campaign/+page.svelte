@@ -39,7 +39,14 @@
 <div class="content">
 	<h1>Your Campaigns</h1>
 	<!-- Campaign list -->
-
+	<div class="new-campaign">
+		<button
+			class="button new-campaign-button"
+			on:click={() => (window.location.href = 'cacprompt')}
+		>
+			Start a New Campaign
+		</button>
+	</div>
 	<div class="campaign-list">
 		{#if campaigns.length > 0}
 			{#each campaigns as campaign}
@@ -62,16 +69,8 @@
 				</div>
 			{/each}
 		{:else}
-			<p>No campaigns found. Start a new one below!</p>
+			<p>No campaigns found.</p>
 		{/if}
-	</div>
-	<div class="new-campaign">
-		<button
-			class="button new-campaign-button"
-			on:click={() => (window.location.href = 'cacprompt')}
-		>
-			Start a New Campaign
-		</button>
 	</div>
 </div>
 
@@ -146,7 +145,7 @@
 		background-color: var(--flame);
 		margin: 30px;
 		margin-bottom: unset;
-		font-size: .7rem;
+		font-size: 0.7rem;
 	}
 
 	.delete-button:hover {
@@ -155,13 +154,16 @@
 
 	.new-campaign {
 		margin-top: 2rem;
+		display: flex;
+		justify-content: left;
 	}
 
 	.new-campaign-button {
-		background-color: var(--orange);
+		background-color: var(--flame);
+		justify-content: left;
 	}
 
 	.new-campaign-button:hover {
-		background-color: #cc7a04;
+		background-color: #b03d19;
 	}
 </style>

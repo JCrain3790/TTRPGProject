@@ -39,7 +39,22 @@
 	let searchTerm;
 
 	onMount(async () => {
-		if (data.startingprompt) {
+		loading = true;
+		//1. fetch conversation from our api
+		const conv = await fetch(`/api/chat?id=${campaign.id}`, {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' }
+		});
+		//2. unwrap response
+		const convResponse = await conv.json();
+		chatLog = convResponse.map((/** @type {{ data: { role: any; content: any; }; }} */ item) => ({
+			role: item.data.role,
+			content: item.data.content
+		}));
+		chatLog = [...chatLog];
+		freshLoad = true;
+
+		if (data.startingprompt && chatLog.length == 0) {
 			let jsonData = JSON.parse(data.startingprompt);
 			if (jsonData.name) {
 				campaignName = jsonData.name;
@@ -86,22 +101,10 @@
 					{ role: 'assistant', content: 'Something went wrong. Please try again.' }
 				];
 			}
-		} else {
-			loading = true;
-			//1. fetch conversation from our api
-			const conv = await fetch(`/api/chat?id=${campaign.id}`, {
-				method: 'GET',
-				headers: { 'Content-Type': 'application/json' }
-			});
-			//2. unwrap response
-			const convResponse = await conv.json();
-			chatLog = convResponse.map((/** @type {{ data: { role: any; content: any; }; }} */ item) => ({
-				role: item.data.role,
-				content: item.data.content
-			}));
-			chatLog = [...chatLog];
-			freshLoad = true;
 		}
+
+		async function createFolders() {}
+
 		loading = false;
 	});
 
@@ -240,19 +243,38 @@
 	let saveName;
 	let saveFolder;
 	let saveValue;
+	let saveID;
 	let saveError = '';
 
 	async function savePrompt() {
 		//save to api
-		const prompt = await fetch(`/api/campaigns/${campaign.id}/folders/${saveFolder}/files`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+		let b;
+		let prompt;
+		if (saveID) {
+			b = JSON.stringify({
+				id: saveID,
 				name: saveName,
 				long_description: saveValue,
 				type: FileTypes.TEXT
-			})
-		});
+			});
+			prompt = await fetch(`/api/campaigns/${campaign.id}/folders/${saveFolder}/files`, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: b
+			});
+		} else {
+			b = JSON.stringify({
+				name: saveName,
+				long_description: saveValue,
+				type: FileTypes.TEXT
+			});
+			prompt = await fetch(`/api/campaigns/${campaign.id}/folders/${saveFolder}/files`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: b
+			});
+		}
+
 		if (!prompt.ok) {
 			saveError = await prompt.json();
 			return;
@@ -261,10 +283,22 @@
 			return f.id == parseInt(saveFolder);
 		});
 		if (folderIndex > -1) {
-			const file = await prompt.json();
-			console.log(file);
-			$folders[folderIndex].files_folder.push(file);
-			$folders = $folders;
+			if (!saveID) {
+				const file = await prompt.json();
+				console.log(file);
+				$folders[folderIndex].files_folder.push(file);
+				$folders = $folders;
+			} else {
+				//find folder file used to be in
+				//splice file from old folder
+				//create new file to new folder with new content
+				let fileIndex = $folders[folderIndex].files_folder.findIndex((f) => {
+					return f.id == saveID;
+				})
+				$folders[folderIndex].files_folder[fileIndex].name = saveName;
+				$folders[folderIndex].files_folder[fileIndex].long_description = saveValue;
+				$folders = $folders;
+			}
 		}
 		console.log($folders);
 		//close dialog box
@@ -273,12 +307,15 @@
 		saveName = '';
 		saveValue = '';
 		saveFolder = '';
+		saveID = '';
 	}
 
-	async function openPrompt(val) {
+	async function openPrompt(val, id) {
 		saveName = 'Default';
 		saveValue = val;
+		saveID = id;
 		saveDialog.showModal();
+		closeSlideout();
 	}
 
 	async function deletePrompt(fileID) {
@@ -316,7 +353,7 @@
 display: flex;
 flex-direction: row;
 justify-content: center;
-color: #FF9505"
+color: #ec4e20"
 >
 	{campaignName}
 </h1>
@@ -387,6 +424,7 @@ color: #FF9505"
 								<h3 style="display: inline; padding-left: 2rem;">{file.name}</h3>
 								<div style="display: flex;">
 									<button
+										on:click={() => openPrompt(file.long_description, file.id)}
 										style="display: block; background-color: transparent; height: 28px; width: 28px; border:none; justify-content:center; align-items:center; padding-right: 1rem;"
 									>
 										<img src={getIcon('edit')} alt="" height="16px" width="16px" />
@@ -416,7 +454,7 @@ color: #FF9505"
 	<div
 		style="display: flex;
 	flex-direction: column;
-	justify-content: center;"
+	justify-content: center; width: 100%;"
 		bind:offsetWidth={ow}
 	>
 		<div
@@ -428,11 +466,13 @@ color: #FF9505"
 				style="display:flex;
 		flex-direction:column-reverse;
 		overflow-y:scroll;
-		padding-right: 34px"
+		padding-right: 34px;
+		padding-top: 1px;"
 				id="list"
 			>
 				{#if chatLog.length > 0}
 					<li
+						class="hovp"
 						style="background-color: {chatLog.toReversed()[0].role == 'user'
 							? '#55555555'
 							: '#27272722'}; {chatLog.toReversed()[0].role == 'user'
@@ -442,25 +482,24 @@ color: #FF9505"
 						<span class={chatLog.toReversed()[0].role === 'user' ? 'user' : 'assistant'}>
 							{chatLog.toReversed()[0].role === 'user' ? '' : 'Assistant'}
 						</span>
-						{#if freshLoad}
-							{chatLog.toReversed()[0].content}
-						{/if}
 						<div
 							style="white-space: pre-wrap;
-								word-wrap: break-word;
-								width: inherit;"
+							word-wrap: break-word;
+							width: inherit;"
 						>
-							{@html typingContent}
+							{#if freshLoad}
+								{chatLog.toReversed()[0].content}
+							{:else}
+								{@html typingContent}
+							{/if}
 						</div>
-						<div style="display: flex; justify-content:end; margin: 1rem;">
-							<button
-								class="hovb"
-								on:click={() => openPrompt(chatLog.toReversed()[0].content)}
-								style="width:fit-content; padding:0px;"
-							>
-								<img src={getIcon('add')} alt="" height="24px" width="24pxpx" />
-							</button>
-						</div>
+						{#if chatLog.toReversed()[0].role == 'assistant'}
+							<div style="display: flex; justify-content:end; margin: 1rem;">
+								<button class="hovb" on:click={() => openPrompt(chatLog.toReversed()[0].content)}>
+									<img src={getIcon('add')} alt="" height="24px" width="24px" />
+								</button>
+							</div>
+						{/if}
 					</li>
 				{/if}
 				{#each chatLog.toReversed() as message, index}
@@ -484,7 +523,11 @@ color: #FF9505"
 								>
 									{@html message.content}
 								</div>
-									<button class="hovb" on:click={() => openPrompt(message.content)}>+ Save</button>
+								<div style="display: flex; justify-content:end; margin: 1rem;">
+									<button class="hovb" on:click={() => openPrompt(message.content)}>
+										<img src={getIcon('add')} alt="" height="24px" width="24px" />
+									</button>
+								</div>
 							{:else}
 								<div
 									style="display:flex;
@@ -498,16 +541,19 @@ color: #FF9505"
 				{/each}
 			</ul>
 		</div>
-		<input
-			type="text"
-			bind:value={input}
-			placeholder="Type your message..."
-			on:keydown={(e) => e.key === 'Enter' && sendMessage()}
-			disabled={loading}
-		/>
-		<button on:click={sendMessage} disabled={loading}>
-			{loading ? 'Sending...' : 'Send'}
-		</button>
+		<div style="display: flex; width: 100%; align-items:center; ">
+			<input
+				style="flex-grow: 1; height:min-content; border: none; border-bottom: solid 1px grey; padding-bottom: .25rem;"
+				type="text"
+				bind:value={input}
+				placeholder="Type your message..."
+				on:keydown={(e) => e.key === 'Enter' && sendMessage()}
+				disabled={loading}
+			/>
+			<button style="margin: 1rem;" on:click={sendMessage} disabled={loading}>
+				{loading ? 'Sending...' : 'Send'}
+			</button>
+		</div>
 	</div>
 </div>
 <dialog
@@ -526,12 +572,14 @@ color: #FF9505"
 			name=""
 			id=""
 		></textarea>
+		{#if !saveID}
 		<h3>Location:</h3>
 		<select style="background-color: var(--eerie-black); color: #ffffff;" bind:value={saveFolder}>
 			{#each $folders as folder}
 				<option value={folder.id}>{folder.name}</option>
 			{/each}
 		</select>
+		{/if}
 		<pre style="color: red; padding: 1rem;">{saveError ? JSON.stringify(saveError) : ''}</pre>
 		<div style="display:flex;">
 			<button
@@ -571,19 +619,41 @@ color: #FF9505"
 		flex-direction: column;
 		margin-bottom: 10px;
 	}
-	.hovp * .hovb {
-		contain: strict;
-		width: fit-content;
-		color: #ffffff;
-		background-color: #ec4e20;
-		padding: 4px;
-		height: 0px;
+	.hovp {
+		border: solid 1px transparent;
+		transition: all 250ms;
 	}
-	.hovp:hover * .hovb {
-		width: fit-content;
+	.hovp:hover {
+		border: solid 1px #ec4e20;
+	}
+	.hovp .hovb {
+		padding: 0px;
+		max-width: 2rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		contain: strict;
+		height: 2rem;
+		opacity: 0.1;
+		transition: all 250ms;
+		width: 2rem;
+		color: #ffffff;
+		background-color: transparent;
+		border: none;
+	}
+	.hovp:hover .hovb {
+		padding: 0px;
+		max-width: 2rem;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		contain: strict;
+		height: 2rem;
+		opacity: 1;
+		width: 2rem;
 		color: #ffffff;
 		background-color: #ec4e20;
-		padding: 4px;
+		border: none;
 	}
 	.user {
 		text-align: right;

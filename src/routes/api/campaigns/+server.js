@@ -1,4 +1,5 @@
 import { error, json } from '@sveltejs/kit';
+import { _createFolder } from "./[campaignid]/folders/+server";
 
 /** @type {import('./$types').RequestHandler} */
 export async function GET({ url, locals }) {
@@ -32,6 +33,21 @@ export async function POST({ request, locals }) {
 	if (resp.error) {
 		return error(503, resp.error);
 	}
+	let folderNames = [
+		{name: 'World', icon: 'default'},
+		{name: 'Lore', icon: 'default'},
+		{name: 'NPCs', icon: 'default'},
+		{name: 'Enemies', icon: 'default'},
+		{name: 'Items', icon: 'default'},
+		{name: 'Factions', icon: 'default'}
+	]
+	for (const o of folderNames) {
+		const fresp = await _createFolder(locals.supabase, resp.data[0].id, o.name, o.icon);
+		if (fresp.error) {
+			console.error(fresp.error);
+		}
+	}
+	
 	return json(resp.data);
 }
 /** @type {import('./$types').RequestHandler} */

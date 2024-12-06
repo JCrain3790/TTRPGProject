@@ -28,13 +28,7 @@ export async function POST({ request, locals }) {
 		return error(400, 'Request body must include name.');
 	}
 	//map the body
-	let folderBody = {
-		campaign_id: body.campaign_id,
-		name: body.name,
-		parent_folder: body.parent_folder ?? null
-	};
-	//save the body
-	const resp = await locals.supabase.from('folders').insert(folderBody).select();
+	const resp = await _createFolder(locals.supabase, body.campaign_id, body.name);
 	if (resp.error) {
 		return error(503, resp.error);
 	}
@@ -62,4 +56,24 @@ export async function DELETE({ url, locals }) {
 		return json(data);
 	}
 	return error(400, 'Please include a campaign id.');
+}
+
+/**
+ * @param {any} supabase
+ * @param {number} campaignID
+ * @param {string} folderName
+ * @param {string=} icon
+ * @param {number=} parentFolderID
+ * @returns {Promise<any>}
+ */
+export async function _createFolder( supabase, campaignID, folderName, icon, parentFolderID ) {
+	let folderBody = {
+		campaign_id: campaignID,
+		name: folderName,
+		icon: icon ?? 'default',
+		parent_folder: parentFolderID ?? null,	
+	};
+	//save the body
+	const resp = await supabase.from('folders').insert(folderBody).select();
+	return resp;
 }
