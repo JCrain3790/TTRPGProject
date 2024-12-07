@@ -1,6 +1,6 @@
 /**
  * 
- * @param {'string'} name 
+ * @param {string} name 
  * @returns 
  */
 export function getIcon( name ) {

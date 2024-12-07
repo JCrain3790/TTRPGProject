@@ -24,6 +24,9 @@ export async function GET({ url, locals: { supabase } }) {
 			console.log('data', data);
 			if (data && data.user && data.session) {
 				initializeUser(data.user, data.session);
+				if (redirectTo.searchParams.get('passwordreset')) {
+					redirect(303, `/user/${data.user.id}`)
+				}
 				redirect(303, `/user/${data.user.id}/cacprompt?referrer=confirmation`);
 			}
 		}

@@ -29,4 +29,15 @@ export const actions = {
       redirect(303, '/user/home')
     }
   },
+    // @ts-ignore
+    forgotpassword: async ({ request, locals: { supabase } }) => {
+      const formData = await request.formData()
+      const email = formData.get('email') + ''
+  
+      const { error } = await supabase.auth.resetPasswordForEmail(email)
+      if (error) {
+        console.error(error)
+        redirect(303, `/auth/error?status=${error.status}&code=${error.code}`)
+      }
+    }
 }

@@ -310,8 +310,8 @@
 		saveID = '';
 	}
 
-	async function openPrompt(val, id) {
-		saveName = 'Default';
+	async function openPrompt(val, id, name) {
+		saveName = name ?? 'Default';
 		saveValue = val;
 		saveID = id;
 		saveDialog.showModal();
@@ -403,6 +403,7 @@ color: #ec4e20"
 					align-items:center"
 		>
 			<h2 style="margin: 8px;">{folderData ? folderData.name : ''}</h2>
+			<button on:click={() => {openPrompt('', null, 'New Note')}}>New Note</button>
 			<input type="search" bind:value={searchTerm} />
 			<button
 				on:click={closeSlideout}
@@ -424,7 +425,7 @@ color: #ec4e20"
 								<h3 style="display: inline; padding-left: 2rem;">{file.name}</h3>
 								<div style="display: flex;">
 									<button
-										on:click={() => openPrompt(file.long_description, file.id)}
+										on:click={() => openPrompt(file.long_description, file.id, file.name)}
 										style="display: block; background-color: transparent; height: 28px; width: 28px; border:none; justify-content:center; align-items:center; padding-right: 1rem;"
 									>
 										<img src={getIcon('edit')} alt="" height="16px" width="16px" />

@@ -56,10 +56,10 @@
 		
 		{#if session}
 			<a href="/user/{session.user.id}/campaign">Campaigns</a>
-			<a href="">{session.user.email}</a>
+			<a href="/user/{session.user.id}">{session.user.email}</a>
 			<button on:click={logout} type="submit">Logout</button>
 		{:else if $page.url.pathname !== '/auth'}
-			<a href="">Sign up</a>
+			<a href="/auth?signUp=true">Sign up</a>
 			<button on:click={login} type="submit">Login</button>
 		{/if}
 	</div>
