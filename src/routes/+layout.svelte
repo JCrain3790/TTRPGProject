@@ -51,8 +51,8 @@
 		
 	</div>
 	<div class="auth nav-links">
-		<a href="/features">Features</a>
-		<a href="/about">About</a>
+		<!-- <a href="/features">Features</a>
+		<a href="/about">About</a> -->
 		
 		{#if session}
 			<a href="/user/{session.user.id}/campaign">Campaigns</a>
