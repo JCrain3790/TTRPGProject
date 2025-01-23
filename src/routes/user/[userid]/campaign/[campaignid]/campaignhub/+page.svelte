@@ -103,8 +103,6 @@
 			}
 		}
 
-		async function createFolders() {}
-
 		loading = false;
 	});
 

@@ -34,10 +34,10 @@ export async function POST({ request, locals }) {
 		return error(503, resp.error);
 	}
 	let folderNames = [
-		{name: 'World', icon: 'default'},
-		{name: 'Lore', icon: 'default'},
-		{name: 'NPCs', icon: 'default'},
-		{name: 'Enemies', icon: 'default'},
+		{name: 'World', icon: 'world'},
+		{name: 'Lore', icon: 'lore'},
+		{name: 'NPCs', icon: 'npcs'},
+		{name: 'Enemies', icon: 'enemies'},
 		{name: 'Items', icon: 'default'},
 		{name: 'Factions', icon: 'default'}
 	]
